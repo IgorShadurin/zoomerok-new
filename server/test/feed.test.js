@@ -9,12 +9,12 @@ describe("Feed test", () => {
     };
 
     test("Feed get not logged in", async () => {
-        const response = await request(app).get('/feed/get').send(testUser);
+        const response = await request(app).get('/feed').send(testUser);
         expect(response.body.result).toBeFalsy();
     });
 
     test("Feed get logged in", async () => {
-        const response = await request(app).get('/feed/get').send(testUser);
+        const response = await request(app).get('/feed').send(testUser);
         expect(response.body.result).toBeTruthy();
     });
 });

@@ -12,6 +12,14 @@ describe("User test", () => {
         password: 'abc'
     };
 
+    beforeAll(() => {
+        console.log('before all');
+    });
+
+    afterAll((done) => {
+        console.log('after all');
+    });
+
     test("User new ok", async () => {
         const response = await request(app).post('/user/new').send(testUser);
         // expect(response.statusCode).toBe(200);
