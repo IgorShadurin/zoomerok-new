@@ -1,0 +1,13 @@
+[Unit]
+Description=FairOS TEST service
+After=network.target
+StartLimitIntervalSec=0
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=root
+ExecStart=/Users/sdancer/Downloads/fairOS-dfs-new/dist/dfs server --cors-origins "http://localhost:3000" --cookieDomain localhost --beeHost raspberrypi.local --beePort 16333 --httpPort 9099 --dataDir /Users/sdancer/.fairOS/dfs-test
+
+[Install]
+WantedBy=multi-user.target

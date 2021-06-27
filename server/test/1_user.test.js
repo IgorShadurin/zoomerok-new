@@ -13,7 +13,7 @@ const notExistsUser = {
     password: 'abc'
 };
 
-describe("User test new", () => {
+describe("User test / create new", () => {
     beforeAll(() => {
         console.log('before all');
     });
@@ -22,15 +22,20 @@ describe("User test new", () => {
         console.log('after all');
     });
 
-    test("User new create", async () => {
+    test("User create new", async () => {
         const response = await request(app).post('/user/new').send(testUser);
         // expect(response.statusCode).toBe(200);
         expect(response.body.result).toBeTruthy();
     });
+
+    test("User create new again", async () => {
+        const response = await request(app).post('/user/new').send(testUser);
+        expect(response.body.result).toBeFalsy();
+    });
 });
 
-describe("User test for created", () => {
-    test("User new empty input", async () => {
+describe("User test / for created", () => {
+    test("User create new empty input", async () => {
         const response = await request(app).post('/user/new');
         expect(response.body.result).toBeFalsy();
     });
