@@ -58,15 +58,21 @@ module.exports = class FairOS {
         return this.api('GET', `${this.apiUrl}user/isloggedin?user=${username}`);
     }
 
-    login(username, password) {
-        // let formData = new FormData();
-        // formData.append('user_name', username);
-        // formData.append('password', password);
+    userLogin(username, password) {
         const formData = {
             user_name: username,
             password
         };
         return this.api('POST', `${this.apiUrl}user/login`, formData);
+    }
+
+    userSignup(username, password, mnemonic) {
+        const formData = {
+            user_name: username,
+            password,
+            mnemonic
+        };
+        return this.api('POST', `${this.apiUrl}user/signup`, formData);
     }
 
     signup(username, password, mnemonic) {
@@ -148,12 +154,12 @@ module.exports = class FairOS {
 
     kvPut(podName, kvName, key, value) {
         const formData = {table_name: kvName, key, value};
-        return this.api('POST', `${this.apiUrl}kv/entry/put?pod_name=${podName}`, formData,'json','text');
+        return this.api('POST', `${this.apiUrl}kv/entry/put?pod_name=${podName}`, formData, 'json', 'text');
     }
 
     kvDelete(podName, kvName) {
         const formData = {table_name: kvName};
-        return this.api('POST', `${this.apiUrl}kv/delete?pod_name=${podName}`, formData,'json','text');
+        return this.api('POST', `${this.apiUrl}kv/delete?pod_name=${podName}`, formData, 'json', 'text');
     }
 
     fileDownload(file) {
