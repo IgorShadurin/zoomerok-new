@@ -9,7 +9,7 @@ module.exports = function (app) {
         okResult(res);
     });
 
-    app.put('/feed/source/add', (req, res) => {
+    app.post('/feed/source/add', (req, res) => {
         okResult(res);
     });
 
