@@ -1,6 +1,14 @@
 const request = require("supertest");
 const app = require("../app/app");
 
+const feedOwnerUser = {
+    username: 'creator',
+    password: 'creator',
+    // https://github.com/bitcoin/bips/blob/master/bip-0039/english.txt
+    // https://iancoleman.io/bip39/#english
+    mnemonic: 'guard trim broccoli accident beef organ same vital thrive oil alcohol uniform'
+};
+
 const testUser = {
     username: 'admin',
     password: 'admin',
@@ -14,13 +22,19 @@ const notExistsUser = {
 };
 
 describe("User test / create new", () => {
-    beforeAll(() => {
-        console.log('before all');
-    });
+    // beforeAll(() => {
+    //     console.log('before all');
+    // });
+    //
+    // afterAll((done) => {
+    //     console.log('after all');
+    // });
 
-    afterAll((done) => {
-        console.log('after all');
-    });
+    // test("Init default feed", async () => {
+    //     let response = await request(app).post('/user/new').send(feedOwnerUser);
+    //     expect(response.body.result).toBeTruthy();
+    //     response = await request(app).post('/f/new').send(feedOwnerUser);
+    // });
 
     test("User create new", async () => {
         const response = await request(app).post('/user/new').send(testUser);

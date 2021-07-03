@@ -1,5 +1,7 @@
 const fetch = require('node-fetch');
-const {FormData} = require('formdata-node');
+const {FormData, File} = require('formdata-node');
+const {Encoder} = require('form-data-encoder');
+const {Readable} = require('stream');
 
 module.exports = class FairOS {
     apiUrl;
@@ -21,12 +23,11 @@ module.exports = class FairOS {
         if (customHeaders) {
             headers = {
                 'Cookie': this.cookie,
-                // 'Content-Type': 'multipart/form-data'
                 ...formData.getHeaders()
             };
             console.log(headers);
         }
-        const postData = method === 'POST' ? {
+        const postData = (method === 'POST' || method === 'DELETE') ? {
             method: method,
             headers,
             // todo check is work if received formData as object
@@ -66,7 +67,7 @@ module.exports = class FairOS {
         return this.api('POST', `${this.apiUrl}user/login`, formData);
     }
 
-    userSignup(username, password, mnemonic) {
+    userSignup(username, password, mnemonic = '') {
         const formData = {
             user_name: username,
             password,
@@ -86,6 +87,11 @@ module.exports = class FairOS {
     podOpen(pod, password) {
         const formData = {pod_name: pod, password};
         return this.api('POST', `${this.apiUrl}pod/open`, formData);
+    }
+
+    mkdir(pod, dir) {
+        const formData = {pod_name: pod, dir_path: dir};
+        return this.api('POST', `${this.apiUrl}dir/mkdir`, formData);
     }
 
     podShare(pod, password) {
@@ -109,6 +115,10 @@ module.exports = class FairOS {
 
     podReceiveInfo(reference) {
         return this.api('GET', `${this.apiUrl}pod/receiveinfo?sharing_ref=${reference}`);
+    }
+
+    dirLs(podName, dir = '/') {
+        return this.api('GET', `${this.apiUrl}dir/ls?pod_name=${podName}&dir_path=${dir}`);
     }
 
     podLs() {
@@ -162,36 +172,36 @@ module.exports = class FairOS {
         return this.api('POST', `${this.apiUrl}kv/delete?pod_name=${podName}`, formData, 'json', 'text');
     }
 
-    fileDownload(file) {
-        return this.api('GET', `${this.apiUrl}file/download?file=${file}`, '', 'etc', 'text');
+    fileDownload(podName, file) {
+        return this.api('POST', `${this.apiUrl}file/download?pod_name=${podName}&file_path=/${file}`, {}, 'etc', 'text');
     }
 
-    // fileUpload(content, pod) {
-    //     console.log(pod)
-    //     console.log(content);
-    //     console.log(this.cookie);
-    //     const file = new File([content], "info.json");
-    //     let formData = new FormData();
-    //     // formData.append('files', file, {
-    //     //     contentType: 'text/plain',
-    //     //     filename: 'info.json',
-    //     // });
-    //     formData.set("files", file);
-    //     const encoder = new Encoder(formData);
-    //     const url = `${this.apiUrl}file/upload?pod_name=${pod}&dir_path=/&block_size=64Mb`;
-    //     // return this.api('POST', `${this.apiUrl}file/upload?pod_name=${pod}&dir_path=/&block_size=64Mb`, formData, 'etc', 'text', 'custom');
-    //     const postData = {
-    //         method: 'POST',
-    //         headers: {
-    //             'Cookie': this.cookie,
-    //             ...encoder.headers
-    //         },
-    //         body: Readable.from(encoder),
-    //         credentials: 'include'
-    //     }
-    //
-    //     return fetch(url, postData).then(data => data.text());
-    // }
+    fileDelete(podName, file) {
+        const formData = {file_path: '/' + file, pod_name: podName};
+
+        return this.api('DELETE', `${this.apiUrl}file/delete?pod_name=${podName}&file_path=/${file}`, formData);
+    }
+
+    fileUpload(content, fileName, pod) {
+        const file = new File([content], fileName);
+        let formData = new FormData();
+        formData.set("files", file);
+        formData.set("dir_path", '/');
+        formData.set("block_size", '64Mb');
+        const encoder = new Encoder(formData);
+        const url = `${this.apiUrl}file/upload?pod_name=${pod}&dir_path=/&block_size=64Mb`;
+        const postData = {
+            method: 'POST',
+            headers: {
+                'Cookie': this.cookie,
+                ...encoder.headers
+            },
+            body: Readable.from(encoder.encode()),
+            credentials: 'include'
+        };
+
+        return fetch(url, postData).then(data => data.json());
+    }
 
     async openAll(password) {
         const pods = await this.podLs();

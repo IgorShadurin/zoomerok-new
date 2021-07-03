@@ -8,13 +8,17 @@ describe("Feed test", () => {
         seed: 'one two three'
     };
 
-    test("Feed get not logged in", async () => {
-        const response = await request(app).get('/feed').send(testUser);
-        expect(response.body.result).toBeFalsy();
-    });
+    const passwordObject = {
+        password: 'admin'
+    };
 
-    test("Feed get logged in", async () => {
-        const response = await request(app).get('/feed').send(testUser);
+    // test("Feed get not logged in", async () => {
+    //     const response = await request(app).get('/feed').send(passwordObject);
+    //     expect(response.body.result).toBeFalsy();
+    // });
+
+    test("Get feed source", async () => {
+        const response = await request(app).get('/feed').send(passwordObject);
         expect(response.body.result).toBeTruthy();
     });
 });
