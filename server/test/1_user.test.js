@@ -30,11 +30,19 @@ describe("User test / create new", () => {
     //     console.log('after all');
     // });
 
-    // test("Init default feed", async () => {
-    //     let response = await request(app).post('/user/new').send(feedOwnerUser);
-    //     expect(response.body.result).toBeTruthy();
-    //     response = await request(app).post('/f/new').send(feedOwnerUser);
-    // });
+    test("Init default feed", async () => {
+        const feedData1 = [
+            {title: "One", file: "file1.mp4"}
+        ];
+        let response = await request(app).post('/user/new').send(feedOwnerUser);
+        expect(response.body.result).toBeTruthy();
+        response = await request(app).post('/feed/new').send({
+            ...feedOwnerUser,
+            content: JSON.stringify(feedData1)
+        });
+        expect(response.body.result).toBeTruthy();
+        expect(response.body.data).toHaveLength(128);
+    });
 
     test("User create new", async () => {
         const response = await request(app).post('/user/new').send(testUser);

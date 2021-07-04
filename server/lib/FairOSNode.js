@@ -6,10 +6,12 @@ const {Readable} = require('stream');
 module.exports = class FairOS {
     apiUrl;
     cookie = '';
+    isNew = false;
 
-    constructor(apiUrl = 'http://localhost:9090/v1/') {
+    constructor(apiUrl = 'http://localhost:9090/v1/', isNew = false) {
         // constructor(apiUrl = `${process.env.REACT_APP_FAIROSHOST}/v1/`) {
         this.apiUrl = apiUrl;
+        this.isNew = isNew;
     }
 
     api(method, url, formData = {} | FormData, type = 'json', result = 'default', customHeaders = '') {
@@ -60,33 +62,33 @@ module.exports = class FairOS {
     }
 
     userLogin(username, password) {
-        const formData = {
+        const formData = this.isNew ? {
             user_name: username,
             password
-        };
-        return this.api('POST', `${this.apiUrl}user/login`, formData);
+        } : {};
+        return this.api('POST', this.isNew ? `${this.apiUrl}user/login` : `${this.apiUrl}user/login?user=${username}&password=${password}`, formData);
     }
 
     userSignup(username, password, mnemonic = '') {
-        const formData = {
+        const formData = this.isNew ? {
             user_name: username,
             password,
             mnemonic
-        };
-        return this.api('POST', `${this.apiUrl}user/signup`, formData);
+        } : {};
+        return this.api('POST', this.isNew ? `${this.apiUrl}user/signup` : `${this.apiUrl}user/signup?user=${username}&password=${password}&mnemonic=${mnemonic}`, formData);
     }
 
-    signup(username, password, mnemonic) {
-        let formData = new FormData();
-        formData.append('user_name', username);
-        formData.append('password', password);
-        formData.append('mnemonic', mnemonic);
-        return this.api('POST', `${this.apiUrl}user/signup`, formData);
-    }
+    // signup(username, password, mnemonic) {
+    //     let formData = new FormData();
+    //     formData.append('user_name', username);
+    //     formData.append('password', password);
+    //     formData.append('mnemonic', mnemonic);
+    //     return this.api('POST', `${this.apiUrl}user/signup`, formData);
+    // }
 
     podOpen(pod, password) {
-        const formData = {pod_name: pod, password};
-        return this.api('POST', `${this.apiUrl}pod/open`, formData);
+        const formData = this.isNew ? {pod_name: pod, password} : {};
+        return this.api('POST', this.isNew ? `${this.apiUrl}pod/open` : `${this.apiUrl}pod/open?pod=${pod}&password=${password}`, formData);
     }
 
     mkdir(pod, dir) {
@@ -96,17 +98,14 @@ module.exports = class FairOS {
 
     podShare(pod, password) {
         const formData = {pod_name: pod, password};
-        return this.api('POST', `${this.apiUrl}pod/share`, formData);
+        return this.api('POST', this.isNew?`${this.apiUrl}pod/share`:`${this.apiUrl}pod/share?pod=${pod}&password=${password}`, formData);
     }
 
     podNew(pod, password) {
-        // let formData = new FormData();
-        // formData.append('pod_name', pod);
-        // formData.append('password', password);
-        const formData = {
+        const formData = this.isNew ? {
             pod_name: pod, password
-        };
-        return this.api('POST', `${this.apiUrl}pod/new`, formData);
+        } : {};
+        return this.api('POST', this.isNew ? `${this.apiUrl}pod/new` : `${this.apiUrl}pod/new?password=${password}&pod=${pod}`, formData);
     }
 
     podReceive(reference) {
@@ -118,7 +117,7 @@ module.exports = class FairOS {
     }
 
     dirLs(podName, dir = '/') {
-        return this.api('GET', `${this.apiUrl}dir/ls?pod_name=${podName}&dir_path=${dir}`);
+        return this.api('GET', this.isNew ? `${this.apiUrl}dir/ls?pod_name=${podName}&dir_path=${dir}` : `${this.apiUrl}dir/ls?dir=${dir}`);
     }
 
     podLs() {
@@ -130,7 +129,7 @@ module.exports = class FairOS {
     }
 
     kvGet(podName, tableName, key) {
-        return this.api('GET', `${this.apiUrl}kv/entry/get?pod_name=${podName}&table_name=${tableName}&key=${key}`);
+        return this.api('GET', this.isNew ? `${this.apiUrl}kv/entry/get?pod_name=${podName}&table_name=${tableName}&key=${key}` : `${this.apiUrl}kv/entry/get?name=${tableName}&key=${key}`);
     }
 
     kvLoadCsv(podName, tableName, csv) {
@@ -151,10 +150,8 @@ module.exports = class FairOS {
     }
 
     kvOpen(podName, kvName) {
-        // let formData = new FormData();
-        // formData.append('table_name', kvName);
-        const formData = {table_name: kvName};
-        return this.api('POST', `${this.apiUrl}kv/open?pod_name=${podName}`, formData);
+        const formData = this.isNew ? {table_name: kvName} : {};
+        return this.api('POST', this.isNew ? `${this.apiUrl}kv/open?pod_name=${podName}` : `${this.apiUrl}kv/open?name=${kvName}`, formData);
     }
 
     kvNew(podName, kvName) {
@@ -164,7 +161,7 @@ module.exports = class FairOS {
 
     kvPut(podName, kvName, key, value) {
         const formData = {table_name: kvName, key, value};
-        return this.api('POST', `${this.apiUrl}kv/entry/put?pod_name=${podName}`, formData, 'json', 'text');
+        return this.api('POST', `${this.apiUrl}kv/entry/put?pod_name=${podName}`, formData);
     }
 
     kvDelete(podName, kvName) {
@@ -173,23 +170,30 @@ module.exports = class FairOS {
     }
 
     fileDownload(podName, file) {
-        return this.api('POST', `${this.apiUrl}file/download?pod_name=${podName}&file_path=/${file}`, {}, 'etc', 'text');
+        return this.api('POST', this.isNew?`${this.apiUrl}file/download?pod_name=${podName}&file_path=/${file}`:`${this.apiUrl}file/download?file=/${file}`, {}, 'etc', 'text');
     }
 
     fileDelete(podName, file) {
         const formData = {file_path: '/' + file, pod_name: podName};
 
-        return this.api('DELETE', `${this.apiUrl}file/delete?pod_name=${podName}&file_path=/${file}`, formData);
+        return this.api('DELETE', this.isNew?`${this.apiUrl}file/delete?pod_name=${podName}&file_path=/${file}`:`${this.apiUrl}file/delete?file=/${file}`, formData);
     }
 
     fileUpload(content, fileName, pod) {
         const file = new File([content], fileName);
         let formData = new FormData();
-        formData.set("files", file);
-        formData.set("dir_path", '/');
-        formData.set("block_size", '64Mb');
+        if (this.isNew) {
+            formData.set("files", file);
+            formData.set("dir_path", '/');
+            formData.set("block_size", '64Mb');
+        } else {
+            formData.set("files", file);
+            formData.set("pod_dir", '/');
+            formData.set("block_size", '1Mb');
+        }
+
         const encoder = new Encoder(formData);
-        const url = `${this.apiUrl}file/upload?pod_name=${pod}&dir_path=/&block_size=64Mb`;
+        const url = this.isNew ? `${this.apiUrl}file/upload?pod_name=${pod}&dir_path=/&block_size=64Mb` : `${this.apiUrl}file/upload`;
         const postData = {
             method: 'POST',
             headers: {

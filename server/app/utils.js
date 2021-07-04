@@ -35,7 +35,8 @@ module.exports.errorResult = (res, message, data = {}) => {
 module.exports.fairOS = fairOSInstance ? fairOSInstance : (
     // todo insert var from env
     // fairOSTestInstance = new FairOS('http://localhost:9099/v1/'),
-    fairOSTestInstance = new FairOS('http://raspberrypi.local:9099/v1/'),
+    // fairOSTestInstance = new FairOS('http://raspberrypi.local:9099/v1/'),
+    fairOSTestInstance = new FairOS('http://raspberrypi.local:9099/v0/'),
         fairOSTestInstance
 );
 
