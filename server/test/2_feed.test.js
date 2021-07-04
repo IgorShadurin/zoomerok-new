@@ -64,4 +64,12 @@ describe("Feed test", () => {
         expect(response.body.result).toBeTruthy();
         expect(response.body.data).toEqual(JSON.stringify(feedData2))
     });
+
+    test("Check feeds count", async () => {
+        let response = await request(app).post('/feed/source/get').send({
+            ...testUser
+        });
+        expect(response.body.result).toBeTruthy();
+        expect(response.body.data).toHaveLength(1);
+    });
 });

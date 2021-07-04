@@ -51,9 +51,11 @@ module.exports.feedFilename = 'feed.json';
 
 module.exports.appPod = 'Zoomerok';
 
+module.exports.feedNamePrefix = 'Zoo-feed-';
+
 module.exports.getNewFeedName = () => {
     const uuid = module.exports.uuid();
-    return `Zoo-feed-${uuid}`;
+    return `${module.exports.feedNamePrefix}${uuid}`;
 };
 
 module.exports.getNewFeedFileName = () => {

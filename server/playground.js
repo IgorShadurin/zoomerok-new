@@ -23,6 +23,12 @@ async function run() {
     const username = 'admin';
     const password = 'admin';
 
+    await fairOS.userLogin(testUser.username, testUser.password);
+    const list = await fairOS.podLs();
+    const filtered = list?.shared_pod_name.filter(item => item.startsWith('Zoo-feed-'));
+    console.log(filtered);
+
+    return;
     const content = 'lol prikol';
     const feedName = getNewFeedName();
     console.log('feedName', feedName);

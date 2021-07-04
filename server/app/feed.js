@@ -1,4 +1,4 @@
-const {assert} = require("./utils");
+const {feedNamePrefix} = require("./utils");
 const {errorResult} = require("./utils");
 const {okResult, fairOS, appPod, getNewFeedName, feedFilename} = require("./utils");
 
@@ -83,16 +83,39 @@ module.exports = function (app) {
         }
     });
 
-    app.post('/feed/source', (req, res) => {
-        okResult(res);
+    app.post('/feed/source/get', async (req, res) => {
+        const {username, password} = req.body;
+
+        if (username && password) {
+            await fairOS.userLogin(username, password);
+            const list = await fairOS.podLs();
+            const filtered = list?.shared_pod_name.filter(item => item.startsWith(feedNamePrefix));
+
+            okResult(res, filtered);
+        } else {
+            errorResult(res, 'Some params missed');
+        }
     });
 
-    app.post('/feed/source/add', (req, res) => {
-        okResult(res);
+    app.post('/feed/source/add', async (req, res) => {
+        const {username, password} = req.body;
+
+        // todo generate id for new source randomly and long
+        if (username && password) {
+            okResult(res);
+        } else {
+            errorResult(res, 'Some params missed');
+        }
     });
 
-    app.delete('/feed/source/delete', (req, res) => {
-        okResult(res);
+    app.delete('/feed/source/delete', async (req, res) => {
+        const {username, password, id} = req.body;
+
+        if (username && password && id) {
+            okResult(res);
+        } else {
+            errorResult(res, 'Some params missed');
+        }
     });
 }
 
