@@ -1,3 +1,4 @@
+const {assert} = require("./utils");
 const {errorResult} = require("./utils");
 const {okResult, fairOS, appPod, getNewFeedName, feedFilename} = require("./utils");
 
@@ -25,7 +26,10 @@ module.exports = function (app) {
             // we should relogin because fairOS 0.5.2 bug
             await fairOS.userLogin(username, password);
             const result = await fairOS.podShare(feedName, password);
-            okResult(res, result.pod_sharing_reference);
+            okResult(res, {
+                name: feedName,
+                reference: result.pod_sharing_reference
+            });
         } else {
             errorResult(res, 'Some params missed');
         }
@@ -33,13 +37,21 @@ module.exports = function (app) {
 
     // get feed content
     app.post('/feed/get-content', async (req, res) => {
-        const {username, password, reference} = req.body;
+        const {username, password, reference, isReceive = true} = req.body;
 
         if (username && password && reference) {
+            if (reference.length !== 128) {
+                errorResult(res, 'Incorrect reference passed');
+                return;
+            }
+
             await fairOS.userLogin(username, password);
             const info = await fairOS.podReceiveInfo(reference);
             const podName = info.pod_name;
-            await fairOS.podReceive(reference);
+            if (isReceive) {
+                await fairOS.podReceive(reference);
+            }
+
             await fairOS.podOpen(podName, password);
             const content = await fairOS.fileDownload(podName, feedFilename);
 
@@ -49,14 +61,29 @@ module.exports = function (app) {
         }
     });
 
-    // app.get('/feed/update', async (req, res) => {
-    //     const {password, content, feedName} = req.body;
-    //     await fairOS.podOpen(feedName, password);
-    //     await fairOS.fileUpload(content, feedFilename, feedName);
-    //     okResult(res);
-    // });
+    app.post('/feed/update', async (req, res) => {
+        const {username, password, content, feedName} = req.body;
 
-    app.get('/feed/source', (req, res) => {
+        if (username && password && content && feedName) {
+            try {
+                await fairOS.userLogin(username, password);
+                // todo validate if pod exists
+                await fairOS.podOpen(feedName, password);
+                await fairOS.fileDelete(content, feedFilename);
+                await fairOS.userLogin(username, password);
+                await fairOS.podOpen(feedName, password);
+                await fairOS.fileUpload(content, feedFilename, feedName);
+
+                okResult(res);
+            } catch (e) {
+                errorResult(res, e.message);
+            }
+        } else {
+            errorResult(res, 'Some params missed');
+        }
+    });
+
+    app.post('/feed/source', (req, res) => {
         okResult(res);
     });
 

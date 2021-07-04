@@ -60,3 +60,9 @@ module.exports.getNewFeedFileName = () => {
     const uuid = module.exports.uuid() + module.exports.uuid() + module.exports.uuid();
     return `feed-${uuid}.json`;
 };
+
+module.exports.assert = (cond, message) => {
+    if (!cond) {
+        throw new Error(message);
+    }
+};
