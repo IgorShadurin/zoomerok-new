@@ -98,8 +98,13 @@ module.exports = class FairOS {
 
     podShare(pod, password) {
         const formData = {pod_name: pod, password};
-        return this.api('POST', this.isNew?`${this.apiUrl}pod/share`:`${this.apiUrl}pod/share?pod=${pod}&password=${password}`, formData);
+        return this.api('POST', this.isNew ? `${this.apiUrl}pod/share` : `${this.apiUrl}pod/share?pod=${pod}&password=${password}`, formData);
     }
+
+    // fileShare(file) {
+    //     const formData = {file};
+    //     return this.api('POST', this.isNew ? `${this.apiUrl}file/share` : `${this.apiUrl}file/share?file=${file}`, formData);
+    // }
 
     podNew(pod, password) {
         const formData = this.isNew ? {
@@ -109,11 +114,11 @@ module.exports = class FairOS {
     }
 
     podReceive(reference) {
-        return this.api('GET', `${this.apiUrl}pod/receive?sharing_ref=${reference}`);
+        return this.api('GET', this.isNew ? `${this.apiUrl}pod/receive?sharing_ref=${reference}` : `${this.apiUrl}pod/receive?ref=${reference}`);
     }
 
     podReceiveInfo(reference) {
-        return this.api('GET', `${this.apiUrl}pod/receiveinfo?sharing_ref=${reference}`);
+        return this.api('GET', this.isNew?`${this.apiUrl}pod/receiveinfo?sharing_ref=${reference}`:`${this.apiUrl}pod/receiveinfo?ref=${reference}`);
     }
 
     dirLs(podName, dir = '/') {
@@ -170,13 +175,13 @@ module.exports = class FairOS {
     }
 
     fileDownload(podName, file) {
-        return this.api('POST', this.isNew?`${this.apiUrl}file/download?pod_name=${podName}&file_path=/${file}`:`${this.apiUrl}file/download?file=/${file}`, {}, 'etc', 'text');
+        return this.api('POST', this.isNew ? `${this.apiUrl}file/download?pod_name=${podName}&file_path=/${file}` : `${this.apiUrl}file/download?file=/${file}`, {}, 'etc', 'text');
     }
 
     fileDelete(podName, file) {
         const formData = {file_path: '/' + file, pod_name: podName};
 
-        return this.api('DELETE', this.isNew?`${this.apiUrl}file/delete?pod_name=${podName}&file_path=/${file}`:`${this.apiUrl}file/delete?file=/${file}`, formData);
+        return this.api('DELETE', this.isNew ? `${this.apiUrl}file/delete?pod_name=${podName}&file_path=/${file}` : `${this.apiUrl}file/delete?file=/${file}`, formData);
     }
 
     fileUpload(content, fileName, pod) {

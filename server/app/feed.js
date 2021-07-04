@@ -13,6 +13,7 @@ module.exports = function (app) {
     // create feed for authors
     app.post('/feed/new', async (req, res) => {
         const {username, password, content} = req.body;
+
         if (username && password && content) {
             await fairOS.userLogin(username, password);
             const feedName = getNewFeedName();
@@ -25,6 +26,24 @@ module.exports = function (app) {
             await fairOS.userLogin(username, password);
             const result = await fairOS.podShare(feedName, password);
             okResult(res, result.pod_sharing_reference);
+        } else {
+            errorResult(res, 'Some params missed');
+        }
+    });
+
+    // get feed content
+    app.post('/feed/get-content', async (req, res) => {
+        const {username, password, reference} = req.body;
+
+        if (username && password && reference) {
+            await fairOS.userLogin(username, password);
+            const info = await fairOS.podReceiveInfo(reference);
+            const podName = info.pod_name;
+            await fairOS.podReceive(reference);
+            await fairOS.podOpen(podName, password);
+            const content = await fairOS.fileDownload(podName, feedFilename);
+
+            okResult(res, content);
         } else {
             errorResult(res, 'Some params missed');
         }

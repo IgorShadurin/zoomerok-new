@@ -4,33 +4,69 @@ const {fairOS, getNewFeedName, getNewFeedFileName} = require("./app/utils");
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 async function run() {
+    const feedOwnerUser = {
+        username: 'creator',
+        password: 'creator',
+        // https://github.com/bitcoin/bips/blob/master/bip-0039/english.txt
+        // https://iancoleman.io/bip39/#english
+        mnemonic: 'guard trim broccoli accident beef organ same vital thrive oil alcohol uniform'
+    };
+
+    const testUser = {
+        username: 'admin',
+        password: 'admin',
+        // https://github.com/bitcoin/bips/blob/master/bip-0039/english.txt
+        // https://iancoleman.io/bip39/#english
+        mnemonic: 'series height alley dignity salad huge derive poem regret mercy inhale mesh'
+    };
+
     const username = 'admin';
     const password = 'admin';
 
     const content = 'lol prikol';
     const feedName = getNewFeedName();
     console.log('feedName', feedName);
-    const l = await fairOS.userLogin(username, password);
+    const l = await fairOS.userLogin(feedOwnerUser.username, feedOwnerUser.password);
     console.log(l);
-    const a = await fairOS.podNew(feedName, password);
+    const a = await fairOS.podNew(feedName, feedOwnerUser.password);
     console.log(a);
     // we should relogin because fairOS 0.5.2 bug
-    await fairOS.userLogin(username, password);
-    const z = await fairOS.podOpen(feedName, password);
+    await fairOS.userLogin(feedOwnerUser.username, feedOwnerUser.password);
+    const z = await fairOS.podOpen(feedName, feedOwnerUser.password);
     console.log(z);
     const r = await fairOS.fileUpload(content, feedFilename, feedName);
     console.log(r);
     // we should relogin because fairOS 0.5.2 bug
 
-    await fairOS.userLogin(username, password);
+    await fairOS.userLogin(feedOwnerUser.username, feedOwnerUser.password);
 
-    const result = await fairOS.podShare(feedName, password);
+    const result = await fairOS.podShare(feedName, feedOwnerUser.password);
     console.log('podShare result', result);
-    await fairOS.userLogin(username, password);
-    await fairOS.podOpen(feedName, password);
+    const reference = result.pod_sharing_reference;
+    await fairOS.userLogin(feedOwnerUser.username, feedOwnerUser.password);
+    await fairOS.podOpen(feedName, feedOwnerUser.password);
 
     let aaa = await fairOS.dirLs(feedName, '/');
     console.log(aaa);
+
+    /***********/
+
+
+    await fairOS.userLogin(testUser.username, testUser.password);
+    let resp = await fairOS.podReceiveInfo(reference);
+    console.log(resp);
+    const podName = resp.pod_name;
+
+    resp = await fairOS.podReceive(reference);
+    console.log(resp);
+
+    resp = await fairOS.podOpen(podName);
+    console.log(resp);
+
+    resp = await fairOS.fileDownload(podName, 'feed.json');
+    console.log(resp);
+
+
     return;
 
     // let response = await fairOS.userSignup(username, password);

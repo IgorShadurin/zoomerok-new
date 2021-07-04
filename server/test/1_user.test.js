@@ -1,25 +1,10 @@
 const request = require("supertest");
 const app = require("../app/app");
+const {notExistsUser} = require("./shared");
+const {testUser} = require("./shared");
+const {feedOwnerUser} = require("./shared");
 
-const feedOwnerUser = {
-    username: 'creator',
-    password: 'creator',
-    // https://github.com/bitcoin/bips/blob/master/bip-0039/english.txt
-    // https://iancoleman.io/bip39/#english
-    mnemonic: 'guard trim broccoli accident beef organ same vital thrive oil alcohol uniform'
-};
 
-const testUser = {
-    username: 'admin',
-    password: 'admin',
-    // https://github.com/bitcoin/bips/blob/master/bip-0039/english.txt
-    // https://iancoleman.io/bip39/#english
-    mnemonic: 'series height alley dignity salad huge derive poem regret mercy inhale mesh'
-};
-const notExistsUser = {
-    username: 'abc',
-    password: 'abc'
-};
 
 describe("User test / create new", () => {
     // beforeAll(() => {
@@ -30,18 +15,9 @@ describe("User test / create new", () => {
     //     console.log('after all');
     // });
 
-    test("Init default feed", async () => {
-        const feedData1 = [
-            {title: "One", file: "file1.mp4"}
-        ];
+    test("Init creator user", async () => {
         let response = await request(app).post('/user/new').send(feedOwnerUser);
         expect(response.body.result).toBeTruthy();
-        response = await request(app).post('/feed/new').send({
-            ...feedOwnerUser,
-            content: JSON.stringify(feedData1)
-        });
-        expect(response.body.result).toBeTruthy();
-        expect(response.body.data).toHaveLength(128);
     });
 
     test("User create new", async () => {
