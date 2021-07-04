@@ -4,8 +4,11 @@ const {testUser} = require("./shared");
 const {feedOwnerUser} = require("./shared");
 
 describe("Feed test", () => {
-    let defaultFeedAddress = '';
+    let defaultFeedReference = '';
+    let defaultFeedReference2 = '';
     let defaultFeedName = '';
+    let defaultFeedName2 = '';
+
     const feedData1 = [
         {title: "One", file: "file1.mp4"}
     ];
@@ -33,14 +36,14 @@ describe("Feed test", () => {
         expect(response.body.result).toBeTruthy();
         expect(response.body.data.name).toBeDefined();
         expect(response.body.data.reference).toHaveLength(128);
-        defaultFeedAddress = response.body.data.reference;
+        defaultFeedReference = response.body.data.reference;
         defaultFeedName = response.body.data.name;
     });
 
     test("Receive and compare feed content from other user", async () => {
         let response = await request(app).post('/feed/get-content').send({
             ...testUser,
-            reference: defaultFeedAddress
+            reference: defaultFeedReference
         });
         expect(response.body.result).toBeTruthy();
         expect(response.body.data).toEqual(JSON.stringify(feedData1))
@@ -59,7 +62,7 @@ describe("Feed test", () => {
         let response = await request(app).post('/feed/get-content').send({
             ...testUser,
             isReceive: false,
-            reference: defaultFeedAddress
+            reference: defaultFeedReference
         });
         expect(response.body.result).toBeTruthy();
         expect(response.body.data).toEqual(JSON.stringify(feedData2))
@@ -71,5 +74,36 @@ describe("Feed test", () => {
         });
         expect(response.body.result).toBeTruthy();
         expect(response.body.data).toHaveLength(1);
+        expect(response.body.data).toContain(defaultFeedName);
+    });
+
+    test("Create new feed", async () => {
+        let response = await request(app).post('/feed/new').send({
+            ...feedOwnerUser,
+            content: JSON.stringify(feedData1)
+        });
+        expect(response.body.result).toBeTruthy();
+        expect(response.body.data.name).toBeDefined();
+        expect(response.body.data.reference).toHaveLength(128);
+        defaultFeedReference2 = response.body.data.reference;
+        defaultFeedName2 = response.body.data.name;
+    });
+
+    test("Add reference via source/add", async () => {
+        let response = await request(app).post('/feed/source/add').send({
+            ...testUser,
+            reference: defaultFeedReference2
+        });
+        expect(response.body.result).toBeTruthy();
+    });
+
+    test("Check feeds count after second feed added", async () => {
+        let response = await request(app).post('/feed/source/get').send({
+            ...testUser
+        });
+        expect(response.body.result).toBeTruthy();
+        expect(response.body.data).toHaveLength(2);
+        expect(response.body.data).toContain(defaultFeedName);
+        expect(response.body.data).toContain(defaultFeedName2);
     });
 });

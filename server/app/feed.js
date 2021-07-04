@@ -98,24 +98,31 @@ module.exports = function (app) {
     });
 
     app.post('/feed/source/add', async (req, res) => {
-        const {username, password} = req.body;
+        const {username, password, reference} = req.body;
 
-        // todo generate id for new source randomly and long
-        if (username && password) {
+        if (username && password && reference) {
+            if (reference.length !== 128) {
+                errorResult(res, 'Incorrect reference passed');
+                return;
+            }
+
+            await fairOS.userLogin(username, password);
+            await fairOS.podReceive(reference);
+
             okResult(res);
         } else {
             errorResult(res, 'Some params missed');
         }
     });
 
-    app.delete('/feed/source/delete', async (req, res) => {
-        const {username, password, id} = req.body;
-
-        if (username && password && id) {
-            okResult(res);
-        } else {
-            errorResult(res, 'Some params missed');
-        }
-    });
+    // app.delete('/feed/source/delete', async (req, res) => {
+    //     const {username, password, id} = req.body;
+    //
+    //     if (username && password && id) {
+    //         okResult(res);
+    //     } else {
+    //         errorResult(res, 'Some params missed');
+    //     }
+    // });
 }
 

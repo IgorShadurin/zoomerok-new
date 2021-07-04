@@ -129,6 +129,10 @@ module.exports = class FairOS {
         return this.api('GET', `${this.apiUrl}pod/ls`);
     }
 
+    podDelete(pod) {
+        return this.api('DELETE', `${this.apiUrl}pod/delete?pod=${pod}`);
+    }
+
     kvLs(podName) {
         return this.api('GET', `${this.apiUrl}kv/ls?pod_name=${podName}`);
     }

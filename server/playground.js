@@ -28,6 +28,10 @@ async function run() {
     const filtered = list?.shared_pod_name.filter(item => item.startsWith('Zoo-feed-'));
     console.log(filtered);
 
+    console.log(await fairOS.podOpen(filtered[0], testUser.password));
+    console.log(await fairOS.podDelete(filtered[0]));
+    console.log(await fairOS.podLs());
+
     return;
     const content = 'lol prikol';
     const feedName = getNewFeedName();
