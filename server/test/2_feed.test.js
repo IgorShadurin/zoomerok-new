@@ -106,4 +106,28 @@ describe("Feed test", () => {
         expect(response.body.data).toContain(defaultFeedName);
         expect(response.body.data).toContain(defaultFeedName2);
     });
+
+    test("Init own public feed", async () => {
+        let response = await request(app).post('/feed/friend/init').send({
+            ...feedOwnerUser
+        });
+        expect(response.body.result).toBeTruthy();
+        expect(response.body.data.created).toBeTruthy();
+        expect(response.body.data.name).toBeDefined();
+    });
+
+    test("Init own public feed again", async () => {
+        let response = await request(app).post('/feed/friend/init').send({
+            ...feedOwnerUser
+        });
+        expect(response.body.result).toBeTruthy();
+        expect(response.body.data.created).toBeFalsy();
+        expect(response.body.data.name).toEqual('');
+    });
+    // todo upload some videos to creator pod
+    // make new feed
+    // download and validate videos from feed (from second user)
+
+    // upload some videos to second user account
+    // how to share user pod with someone? difference between feed owner?
 });

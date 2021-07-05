@@ -1,14 +1,79 @@
+const {getFriendFeedName} = require("./utils");
+const {friendNamePrefix} = require("./utils");
 const {feedNamePrefix} = require("./utils");
 const {errorResult} = require("./utils");
 const {okResult, fairOS, appPod, getNewFeedName, feedFilename} = require("./utils");
 
 module.exports = function (app) {
     // get user combined feed
-    app.get('/feed', async (req, res) => {
-        const {password} = req.body;
-        const openResult = await fairOS.podOpen(appPod, password);
-        console.log(openResult);
-        okResult(res);
+    // app.get('/feed', async (req, res) => {
+    //     const {password} = req.body;
+    //     const openResult = await fairOS.podOpen(appPod, password);
+    //     console.log(openResult);
+    //     okResult(res);
+    // });
+
+    app.post('/feed/friend/get', async (req, res) => {
+        const {username, password} = req.body;
+
+        if (username && password) {
+            await fairOS.userLogin(username, password);
+            const list = await fairOS.podLs();
+            const filtered = list?.shared_pod_name.filter(item => item.startsWith(friendNamePrefix));
+            let result = [];
+            if (filtered.length > 0) {
+                for (let i = 0; i <= filtered.length; i++) {
+                    let files = await fairOS.podLs();
+                    console.log(files);
+                }
+            }
+
+            okResult(res, result);
+        } else {
+            errorResult(res, 'Some params missed');
+        }
+    });
+
+    app.post('/feed/friend/add', async (req, res) => {
+        const {username, password, reference} = req.body;
+
+        if (username && password && reference) {
+            if (reference.length !== 128) {
+                errorResult(res, 'Incorrect reference passed');
+                return;
+            }
+
+            await fairOS.userLogin(username, password);
+            const info = await fairOS.podReceiveInfo(reference);
+            console.log(info);
+            await fairOS.podReceive(reference);
+
+            okResult(res, result);
+        } else {
+            errorResult(res, 'Some params missed');
+        }
+    });
+
+    app.post('/feed/friend/init', async (req, res) => {
+        const {username, password} = req.body;
+
+        if (username && password) {
+            await fairOS.userLogin(username, password);
+            const list = await fairOS.podLs();
+            const filtered = list?.pod_name.filter(item => item.startsWith(friendNamePrefix));
+
+            let created = false;
+            let name = '';
+            if (filtered.length === 0) {
+                name = getFriendFeedName();
+                await fairOS.podNew(name, password);
+                created = true;
+            }
+
+            okResult(res, {created, name});
+        } else {
+            errorResult(res, 'Some params missed');
+        }
     });
 
     // create feed for authors
@@ -115,6 +180,7 @@ module.exports = function (app) {
         }
     });
 
+    // to implement deleting we should store "deleted" pods in Zoomerok pod
     // app.delete('/feed/source/delete', async (req, res) => {
     //     const {username, password, id} = req.body;
     //
