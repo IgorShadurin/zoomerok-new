@@ -13,6 +13,46 @@ module.exports = function (app) {
     //     okResult(res);
     // });
 
+    app.post('/feed/friend/init', async (req, res) => {
+        const {username, password} = req.body;
+
+        if (username && password) {
+            await fairOS.userLogin(username, password);
+            const list = await fairOS.podLs();
+            const filtered = list?.pod_name.filter(item => item.startsWith(friendNamePrefix));
+            let created = false;
+            let name = '';
+            let reference = '';
+            if (filtered.length === 0) {
+                name = getFriendFeedName();
+                await fairOS.podNew(name, password);
+                await fairOS.userLogin(username, password);
+                const sharedResult = await fairOS.podShare(name, password);
+                reference = sharedResult.pod_sharing_reference;
+                created = true;
+                okResult(res, {created, name, reference});
+            } else {
+                errorResult(res, 'Already added');
+            }
+        } else {
+            errorResult(res, 'Some params missed');
+        }
+    });
+
+    app.post('/feed/friend/list', async (req, res) => {
+        const {username, password} = req.body;
+
+        if (username && password) {
+            await fairOS.userLogin(username, password);
+            const list = await fairOS.podLs();
+            const filtered = list?.shared_pod_name.filter(item => item.startsWith(friendNamePrefix));
+
+            okResult(res, filtered);
+        } else {
+            errorResult(res, 'Some params missed');
+        }
+    });
+
     app.post('/feed/friend/get', async (req, res) => {
         const {username, password} = req.body;
 
@@ -48,32 +88,6 @@ module.exports = function (app) {
             await fairOS.podReceive(reference);
 
             okResult(res, {name: info.pod_name});
-        } else {
-            errorResult(res, 'Some params missed');
-        }
-    });
-
-    app.post('/feed/friend/init', async (req, res) => {
-        const {username, password} = req.body;
-
-        if (username && password) {
-            await fairOS.userLogin(username, password);
-            const list = await fairOS.podLs();
-            const filtered = list?.pod_name.filter(item => item.startsWith(friendNamePrefix));
-            let created = false;
-            let name = '';
-            let reference = '';
-            if (filtered.length === 0) {
-                name = getFriendFeedName();
-                await fairOS.podNew(name, password);
-                await fairOS.userLogin(username, password);
-                const sharedResult = await fairOS.podShare(name, password);
-                reference = sharedResult.pod_sharing_reference;
-                created = true;
-                okResult(res, {created, name, reference});
-            } else {
-                errorResult(res, 'Already added');
-            }
         } else {
             errorResult(res, 'Some params missed');
         }

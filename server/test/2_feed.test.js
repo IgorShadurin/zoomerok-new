@@ -135,6 +135,23 @@ describe("Feed test", () => {
         expect(response.body.result).toBeTruthy();
         expect(response.body.data.name).toBeDefined();
     });
+
+    test("Get friends list", async () => {
+        let response = await request(app).post('/feed/friend/list').send({
+            ...testUser
+        });
+        expect(response.body.result).toBeTruthy();
+        expect(response.body.data).toHaveLength(1);
+    });
+
+    // test("Upload videos to creator's feed", async () => {
+    //     let response = await request(app).post('/feed/friend/add').send({
+    //         ...testUser,
+    //         reference: user1FeedReference
+    //     });
+    //     expect(response.body.result).toBeTruthy();
+    //     expect(response.body.data.name).toBeDefined();
+    // });
     // todo upload some videos to creator pod
     // make new feed
     // download and validate videos from feed (from second user)
