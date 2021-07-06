@@ -75,3 +75,9 @@ module.exports.assert = (cond, message) => {
         throw new Error(message);
     }
 };
+
+module.exports.getNewVideoFileName = () => {
+    const date = +new Date();
+
+    return `${date}.mp4`;
+};

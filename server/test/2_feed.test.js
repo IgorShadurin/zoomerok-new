@@ -1,4 +1,5 @@
 const request = require("supertest");
+const fs = require("fs");
 const app = require("../app/app");
 const {testUser} = require("./shared");
 const {feedOwnerUser} = require("./shared");
@@ -144,14 +145,16 @@ describe("Feed test", () => {
         expect(response.body.data).toHaveLength(1);
     });
 
-    // test("Upload videos to creator's feed", async () => {
-    //     let response = await request(app).post('/feed/friend/add').send({
-    //         ...testUser,
-    //         reference: user1FeedReference
-    //     });
-    //     expect(response.body.result).toBeTruthy();
-    //     expect(response.body.data.name).toBeDefined();
-    // });
+    test("Upload videos to creator's feed", async () => {
+        let response = await request(app).post('/feed/friend/upload')
+            .field('username', feedOwnerUser.username)
+            .field('password', feedOwnerUser.password)
+            .attach('video', './content/video1.mp4');
+        // .attach('video', './test/content/video1.mp4');
+        expect(response.body.result).toBeTruthy();
+        expect(response.body.data.reference).toHaveLength(128);
+
+    }, 60000);
     // todo upload some videos to creator pod
     // make new feed
     // download and validate videos from feed (from second user)

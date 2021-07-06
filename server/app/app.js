@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const {okResult} = require("./utils");
+const multer = require('multer');
 
 const app = express();
 
@@ -9,13 +10,12 @@ app.use(function (req, res, next) {
     next();
 });
 
-app.use(bodyParser.json({
-    verify: (req, res, buf, encoding) => {
-        if (buf && buf.length) {
-            req.rawBody = buf.toString(encoding || 'utf8');
-        }
-    },
-}));
+const bodyParse = bodyParser.json();
+
+app.use((req, res, next) => {
+    if (req.originalUrl === '/feed/friend/upload') next();
+    else bodyParse(req, res, next);
+});
 
 require('./user')(app);
 require('./feed')(app);

@@ -1,8 +1,11 @@
+const {getNewVideoFileName} = require("./utils");
 const {getFriendFeedName} = require("./utils");
 const {friendNamePrefix} = require("./utils");
 const {feedNamePrefix} = require("./utils");
 const {errorResult} = require("./utils");
 const {okResult, fairOS, appPod, getNewFeedName, feedFilename} = require("./utils");
+var multer = require('multer')
+var upload = multer()
 
 module.exports = function (app) {
     // get user combined feed
@@ -88,6 +91,49 @@ module.exports = function (app) {
             await fairOS.podReceive(reference);
 
             okResult(res, {name: info.pod_name});
+        } else {
+            errorResult(res, 'Some params missed');
+        }
+    });
+
+    app.post('/feed/friend/upload', upload.fields([
+        {name: 'video', maxCount: 1},
+        {name: 'username'},
+        {name: 'password'}
+    ]), async (req, res) => {
+        const {username, password} = req.body;
+
+        // console.log('called 2');
+        // console.log(req.body);
+        // console.log(req.files.video[0]);
+        const maxMb = 100;
+        const video = req.files.video[0];
+        if (video.size > maxMb * 1024 * 1024) {
+            errorResult(res, `File too big. Max size is ${maxMb} Mb`);
+
+            return;
+        }
+
+        if (username && password) {
+            await fairOS.userLogin(username, password);
+            const list = await fairOS.podLs();
+            const filtered = list?.pod_name.filter(item => item.startsWith(friendNamePrefix));
+            if (filtered.length === 0) {
+                errorResult(res, 'Public feed not found');
+
+                return;
+            }
+
+            const pod = filtered[0];
+            await fairOS.podOpen(pod, password);
+            const response = await fairOS.fileUpload(video.buffer, getNewVideoFileName(), pod);
+            // const fileName = response?.References[0]?.file_name;
+            const reference = response?.References[0]?.reference;
+            if (reference) {
+                okResult(res, {reference});
+            } else {
+                errorResult(res, 'File not uploaded');
+            }
         } else {
             errorResult(res, 'Some params missed');
         }
