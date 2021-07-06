@@ -59,6 +59,7 @@ module.exports = function (app) {
     app.post('/feed/friend/get', async (req, res) => {
         const {username, password} = req.body;
 
+        const maxItemsFromUser = 10;
         if (username && password) {
             await fairOS.userLogin(username, password);
             const list = await fairOS.podLs();
@@ -69,7 +70,8 @@ module.exports = function (app) {
                     const currentPod = filtered[i];
                     await fairOS.podOpen(currentPod, password);
                     let files = await fairOS.dirLs(currentPod);
-                    files.entries?.forEach(item => result.push({pod: currentPod, name: item.name}));
+                    const entries = (files.entries ? files.entries.sort().reverse() : []).slice(0, maxItemsFromUser - 1);
+                    entries.forEach(item => result.push({pod: currentPod, name: item.name}));
                 }
             }
 
