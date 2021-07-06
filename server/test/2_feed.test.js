@@ -153,12 +153,14 @@ describe("Feed test", () => {
         // .attach('video', './test/content/video1.mp4');
         expect(response.body.result).toBeTruthy();
         expect(response.body.data.reference).toHaveLength(128);
-
+        expect(response.body.data.name).toBeDefined();
     }, 60000);
-    // todo upload some videos to creator pod
-    // make new feed
-    // download and validate videos from feed (from second user)
 
-    // upload some videos to second user account
-    // how to share user pod with someone? difference between feed owner?
+    test("Check is new video appears in other user account", async () => {
+        let response = await request(app).post('/feed/friend/get').send({
+            ...testUser
+        });
+        expect(response.body.data).toHaveLength(1);
+    });
+
 });

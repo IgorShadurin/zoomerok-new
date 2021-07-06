@@ -65,9 +65,11 @@ module.exports = function (app) {
             const filtered = list?.shared_pod_name.filter(item => item.startsWith(friendNamePrefix));
             let result = [];
             if (filtered.length > 0) {
-                for (let i = 0; i <= filtered.length; i++) {
-                    let files = await fairOS.podLs();
-                    console.log(files);
+                for (let i = 0; i < filtered.length; i++) {
+                    const currentPod = filtered[i];
+                    await fairOS.podOpen(currentPod, password);
+                    let files = await fairOS.dirLs(currentPod);
+                    files.entries?.forEach(item => result.push({pod: currentPod, name: item.name}));
                 }
             }
 
@@ -103,9 +105,6 @@ module.exports = function (app) {
     ]), async (req, res) => {
         const {username, password} = req.body;
 
-        // console.log('called 2');
-        // console.log(req.body);
-        // console.log(req.files.video[0]);
         const maxMb = 100;
         const video = req.files.video[0];
         if (video.size > maxMb * 1024 * 1024) {
@@ -127,10 +126,10 @@ module.exports = function (app) {
             const pod = filtered[0];
             await fairOS.podOpen(pod, password);
             const response = await fairOS.fileUpload(video.buffer, getNewVideoFileName(), pod);
-            // const fileName = response?.References[0]?.file_name;
+            const fileName = response?.References[0]?.file_name;
             const reference = response?.References[0]?.reference;
             if (reference) {
-                okResult(res, {reference});
+                okResult(res, {reference, name: fileName});
             } else {
                 errorResult(res, 'File not uploaded');
             }
