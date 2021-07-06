@@ -45,10 +45,9 @@ module.exports = function (app) {
 
             await fairOS.userLogin(username, password);
             const info = await fairOS.podReceiveInfo(reference);
-            console.log(info);
             await fairOS.podReceive(reference);
 
-            okResult(res, result);
+            okResult(res, {name: info.pod_name});
         } else {
             errorResult(res, 'Some params missed');
         }
@@ -61,16 +60,20 @@ module.exports = function (app) {
             await fairOS.userLogin(username, password);
             const list = await fairOS.podLs();
             const filtered = list?.pod_name.filter(item => item.startsWith(friendNamePrefix));
-
             let created = false;
             let name = '';
+            let reference = '';
             if (filtered.length === 0) {
                 name = getFriendFeedName();
                 await fairOS.podNew(name, password);
+                await fairOS.userLogin(username, password);
+                const sharedResult = await fairOS.podShare(name, password);
+                reference = sharedResult.pod_sharing_reference;
                 created = true;
+                okResult(res, {created, name, reference});
+            } else {
+                errorResult(res, 'Already added');
             }
-
-            okResult(res, {created, name});
         } else {
             errorResult(res, 'Some params missed');
         }

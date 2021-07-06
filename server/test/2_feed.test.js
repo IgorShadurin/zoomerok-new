@@ -9,6 +9,8 @@ describe("Feed test", () => {
     let defaultFeedName = '';
     let defaultFeedName2 = '';
 
+    let user1FeedReference = '';
+
     const feedData1 = [
         {title: "One", file: "file1.mp4"}
     ];
@@ -114,15 +116,24 @@ describe("Feed test", () => {
         expect(response.body.result).toBeTruthy();
         expect(response.body.data.created).toBeTruthy();
         expect(response.body.data.name).toBeDefined();
+        expect(response.body.data.reference).toHaveLength(128);
+        user1FeedReference = response.body.data.reference;
     });
 
     test("Init own public feed again", async () => {
         let response = await request(app).post('/feed/friend/init').send({
             ...feedOwnerUser
         });
+        expect(response.body.result).toBeFalsy();
+    });
+
+    test("Add user to friends", async () => {
+        let response = await request(app).post('/feed/friend/add').send({
+            ...testUser,
+            reference: user1FeedReference
+        });
         expect(response.body.result).toBeTruthy();
-        expect(response.body.data.created).toBeFalsy();
-        expect(response.body.data.name).toEqual('');
+        expect(response.body.data.name).toBeDefined();
     });
     // todo upload some videos to creator pod
     // make new feed
