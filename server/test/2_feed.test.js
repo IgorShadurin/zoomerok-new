@@ -149,8 +149,8 @@ describe("Feed test", () => {
         let response = await request(app).post('/feed/friend/upload')
             .field('username', feedOwnerUser.username)
             .field('password', feedOwnerUser.password)
-            .attach('video', './content/video1.mp4');
-        // .attach('video', './test/content/video1.mp4');
+            .attach('video', './content/1.mp4');
+        // .attach('video', './test/content/1.mp4');
         expect(response.body.result).toBeTruthy();
         expect(response.body.data.reference).toHaveLength(128);
         expect(response.body.data.name).toBeDefined();
@@ -163,4 +163,27 @@ describe("Feed test", () => {
         expect(response.body.data).toHaveLength(1);
     });
 
+    test("Upload more videos to creator's feed", async () => {
+        for (let i = 2; i <= 11; i++) {
+            let response = await request(app).post('/feed/friend/upload')
+                .field('username', feedOwnerUser.username)
+                .field('password', feedOwnerUser.password)
+                .attach('video', `./content/${i}.mp4`);
+            // .attach('video', './test/content/1.mp4');
+            expect(response.body.result).toBeTruthy();
+            expect(response.body.data.reference).toHaveLength(128);
+            expect(response.body.data.name).toBeDefined();
+        }
+
+    }, 60000);
+
+    test("Check is new videos appears in other user account", async () => {
+        let response = await request(app).post('/feed/friend/get').send({
+            ...testUser
+        });
+        // 10 not 11, because feed limitation for every user
+        expect(response.body.data).toHaveLength(10);
+    });
+
+    // todo check creator user videos length == 11
 });

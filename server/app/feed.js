@@ -70,7 +70,7 @@ module.exports = function (app) {
                     const currentPod = filtered[i];
                     await fairOS.podOpen(currentPod, password);
                     let files = await fairOS.dirLs(currentPod);
-                    const entries = (files.entries ? files.entries.sort().reverse() : []).slice(0, maxItemsFromUser - 1);
+                    const entries = (files.entries ? files.entries.sort().reverse() : []).slice(0, maxItemsFromUser);
                     entries.forEach(item => result.push({pod: currentPod, name: item.name}));
                 }
             }
