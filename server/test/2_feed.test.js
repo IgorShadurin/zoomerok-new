@@ -156,8 +156,15 @@ describe("Feed test", () => {
         expect(response.body.data.name).toBeDefined();
     }, 60000);
 
+    test("Check is uploaded to my account", async () => {
+        let response = await request(app).post('/feed/friend/get-my-videos').send({
+            ...feedOwnerUser
+        });
+        expect(response.body.data).toHaveLength(1);
+    });
+
     test("Check is new video appears in other user account", async () => {
-        let response = await request(app).post('/feed/friend/get').send({
+        let response = await request(app).post('/feed/friend/get-videos').send({
             ...testUser
         });
         expect(response.body.data).toHaveLength(1);
@@ -177,13 +184,18 @@ describe("Feed test", () => {
 
     }, 60000);
 
+    test("Check is uploaded to my account all videos", async () => {
+        let response = await request(app).post('/feed/friend/get-my-videos').send({
+            ...feedOwnerUser
+        });
+        expect(response.body.data).toHaveLength(11);
+    });
+
     test("Check is new videos appears in other user account", async () => {
-        let response = await request(app).post('/feed/friend/get').send({
+        let response = await request(app).post('/feed/friend/get-videos').send({
             ...testUser
         });
         // 10 not 11, because feed limitation for every user
         expect(response.body.data).toHaveLength(10);
     });
-
-    // todo check creator user videos length == 11
 });
