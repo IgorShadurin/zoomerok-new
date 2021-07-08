@@ -97,64 +97,64 @@ const Feed: React.FC<Props> = ({play, item}) => {
         </MusicBox>
       </Details>
       <Actions>
-        <BoxAction>
-          <AntDesign
-            style={{alignSelf: 'center'}}
-            name="heart"
-            size={35}
-            color="#fff"
-          />
-          <TextAction>{item.likes}</TextAction>
-        </BoxAction>
-        <BoxAction>
-          <FontAwesome
-            style={{alignSelf: 'center'}}
-            name="commenting"
-            size={35}
-            color="#fff"
-          />
-          <TextAction>{item.comments}</TextAction>
-        </BoxAction>
-        <BoxAction>
-          <FontAwesome
-            style={{alignSelf: 'center'}}
-            name="whatsapp"
-            size={35}
-            color="#06d755"
-          />
-          <TextAction>Share</TextAction>
-        </BoxAction>
-        <BoxAction>
-          <Animated.View
-            style={{
-              borderRadius: 50,
-              borderWidth: 12,
-              borderColor: '#292929',
-              transform: [
-                {
-                  rotate: isPlay ? rotateProp : 0,
-                },
-              ],
-            }}
-          >
-            <Image
-              style={{
-                width: 35,
-                height: 35,
-                borderRadius: 25,
-              }}
-              source={{
-                uri: 'https://avatars3.githubusercontent.com/u/45601574',
-              }}
-            />
-          </Animated.View>
+        {/*<BoxAction>*/}
+        {/*  <AntDesign*/}
+        {/*    style={{alignSelf: 'center'}}*/}
+        {/*    name="heart"*/}
+        {/*    size={35}*/}
+        {/*    color="#fff"*/}
+        {/*  />*/}
+        {/*  <TextAction>{item.likes}</TextAction>*/}
+        {/*</BoxAction>*/}
+        {/*<BoxAction>*/}
+        {/*  <FontAwesome*/}
+        {/*    style={{alignSelf: 'center'}}*/}
+        {/*    name="commenting"*/}
+        {/*    size={35}*/}
+        {/*    color="#fff"*/}
+        {/*  />*/}
+        {/*  <TextAction>{item.comments}</TextAction>*/}
+        {/*</BoxAction>*/}
+        {/*<BoxAction>*/}
+        {/*  <FontAwesome*/}
+        {/*    style={{alignSelf: 'center'}}*/}
+        {/*    name="whatsapp"*/}
+        {/*    size={35}*/}
+        {/*    color="#06d755"*/}
+        {/*  />*/}
+        {/*  <TextAction>Share</TextAction>*/}
+        {/*</BoxAction>*/}
+        {/*<BoxAction>*/}
+        {/*  <Animated.View*/}
+        {/*    style={{*/}
+        {/*      borderRadius: 50,*/}
+        {/*      borderWidth: 12,*/}
+        {/*      borderColor: '#292929',*/}
+        {/*      transform: [*/}
+        {/*        {*/}
+        {/*          rotate: isPlay ? rotateProp : 0,*/}
+        {/*        },*/}
+        {/*      ],*/}
+        {/*    }}*/}
+        {/*  >*/}
+        {/*    <Image*/}
+        {/*      style={{*/}
+        {/*        width: 35,*/}
+        {/*        height: 35,*/}
+        {/*        borderRadius: 25,*/}
+        {/*      }}*/}
+        {/*      source={{*/}
+        {/*        uri: 'https://avatars3.githubusercontent.com/u/45601574',*/}
+        {/*      }}*/}
+        {/*    />*/}
+        {/*  </Animated.View>*/}
 
-          <Lottie
-            source={musicFly}
-            progress={isPlay ? spinValue : 0}
-            style={{width: 150, position: 'absolute', bottom: 0, right: 0}}
-          />
-        </BoxAction>
+        {/*  <Lottie*/}
+        {/*    source={musicFly}*/}
+        {/*    progress={isPlay ? spinValue : 0}*/}
+        {/*    style={{width: 150, position: 'absolute', bottom: 0, right: 0}}*/}
+        {/*  />*/}
+        {/*</BoxAction>*/}
       </Actions>
 
       <TouchableWithoutFeedback onPress={onVideoClick}>

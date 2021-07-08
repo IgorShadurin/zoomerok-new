@@ -59,16 +59,16 @@ const AppRoutes: React.FC = () => {
           ),
         }}
       />
-      <Tab.Screen
-        name="Discover"
-        component={Discover}
-        options={{
-          tabBarLabel: 'Discover',
-          tabBarIcon: ({ color }) => (
-            <AntDesign name="search1" size={24} color={color} />
-          ),
-        }}
-      />
+      {/*<Tab.Screen*/}
+      {/*  name="Discover"*/}
+      {/*  component={Discover}*/}
+      {/*  options={{*/}
+      {/*    tabBarLabel: 'Discover',*/}
+      {/*    tabBarIcon: ({ color }) => (*/}
+      {/*      <AntDesign name="search1" size={24} color={color} />*/}
+      {/*    ),*/}
+      {/*  }}*/}
+      {/*/>*/}
       <Tab.Screen
         name="Live"
         component={Record}
@@ -86,20 +86,20 @@ const AppRoutes: React.FC = () => {
           tabBarIcon: () => <HomeButtom home={home} />,
         }}
       />
-      <Tab.Screen
-        name="Inbox"
-        component={Inbox}
-        options={{
-          tabBarLabel: 'Inbox',
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons
-              name="message-text-outline"
-              size={24}
-              color={color}
-            />
-          ),
-        }}
-      />
+      {/*<Tab.Screen*/}
+      {/*  name="Inbox"*/}
+      {/*  component={Inbox}*/}
+      {/*  options={{*/}
+      {/*    tabBarLabel: 'Inbox',*/}
+      {/*    tabBarIcon: ({ color }) => (*/}
+      {/*      <MaterialCommunityIcons*/}
+      {/*        name="message-text-outline"*/}
+      {/*        size={24}*/}
+      {/*        color={color}*/}
+      {/*      />*/}
+      {/*    ),*/}
+      {/*  }}*/}
+      {/*/>*/}
       <Tab.Screen
         name="Me"
         component={Me}

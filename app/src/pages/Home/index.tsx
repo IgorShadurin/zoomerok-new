@@ -14,13 +14,13 @@ const Home: React.FC = () => {
   return (
     <Container>
       <Header>
-        <Tab onPress={() => setTab(1)}>
-          <Text active={tab === 1}>Following</Text>
-        </Tab>
-        <Separator>|</Separator>
-        <Tab onPress={() => setTab(2)}>
-          <Text active={tab === 2}>For You</Text>
-        </Tab>
+        {/*<Tab onPress={() => setTab(1)}>*/}
+        {/*  <Text active={tab === 1}>Following</Text>*/}
+        {/*</Tab>*/}
+        {/*<Separator>|</Separator>*/}
+        {/*<Tab onPress={() => setTab(2)}>*/}
+        {/*  <Text active={tab === 2}>For You</Text>*/}
+        {/*</Tab>*/}
       </Header>
       <ViewPager
         onPageSelected={e => {
