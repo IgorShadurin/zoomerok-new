@@ -51,12 +51,12 @@ const Record: React.FC = () => {
           >
             <AntDesign name="close" size={28} color="#fff" />
           </Button>
-          <Button>
-            <Row>
-              <FontAwesome name="music" size={18} color="#fff" />
-              <Description>Sons</Description>
-            </Row>
-          </Button>
+          {/*<Button>*/}
+          {/*  <Row>*/}
+          {/*    <FontAwesome name="music" size={18} color="#fff" />*/}
+          {/*    <Description>Sons</Description>*/}
+          {/*  </Row>*/}
+          {/*</Button>*/}
           <Button
             onPress={() => {
               setType(
