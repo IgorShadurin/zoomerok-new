@@ -22,11 +22,13 @@ module.exports = function (app) {
         if (username && password) {
             await fairOS.userLogin(username, password);
             const list = await fairOS.podLs();
-            const filtered = list?.pod_name.filter(item => item.startsWith(friendNamePrefix));
+            const pod = list?.pod_name.find(item => item.startsWith(friendNamePrefix));
             let created = false;
             let name = '';
             let reference = '';
-            if (filtered.length === 0) {
+            if (pod) {
+                errorResult(res, 'Already added');
+            } else {
                 name = getFriendFeedName();
                 await fairOS.podNew(name, password);
                 await fairOS.userLogin(username, password);
@@ -34,8 +36,24 @@ module.exports = function (app) {
                 reference = sharedResult.pod_sharing_reference;
                 created = true;
                 okResult(res, {created, name, reference});
+            }
+        } else {
+            errorResult(res, 'Some params missed');
+        }
+    });
+
+    app.post('/feed/friend/get-my-reference', async (req, res) => {
+        const {username, password} = req.body;
+
+        if (username && password) {
+            await fairOS.userLogin(username, password);
+            const list = await fairOS.podLs();
+            const pod = list?.pod_name.find(item => item.startsWith(friendNamePrefix));
+            if (pod) {
+                const sharedResult = await fairOS.podShare(pod, password);
+                okResult(res, sharedResult.pod_sharing_reference);
             } else {
-                errorResult(res, 'Already added');
+                errorResult(res, 'Feed not created');
             }
         } else {
             errorResult(res, 'Some params missed');

@@ -7,7 +7,6 @@ module.exports = function (app) {
         const {username, password} = req.body;
         if (username && password) {
             const response = await fairOS.userLogin(username, password);
-            console.log(response);
             if (response.code === 200) {
                 okResult(res);
             } else {
@@ -22,7 +21,6 @@ module.exports = function (app) {
         const {username, password, mnemonic} = req.body;
         if (username && password && mnemonic) {
             const response = await fairOS.userSignup(username, password, mnemonic);
-            console.log(response);
             if (response.address) {
                 okResult(res);
             } else {

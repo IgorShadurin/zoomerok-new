@@ -121,6 +121,14 @@ describe("Feed test", () => {
         user1FeedReference = response.body.data.reference;
     });
 
+    test("Get init feed reference again", async () => {
+        let response = await request(app).post('/feed/friend/get-my-reference').send({
+            ...feedOwnerUser
+        });
+        expect(response.body.result).toBeTruthy();
+        expect(response.body.data).toHaveLength(128);
+    });
+
     test("Init own public feed again", async () => {
         let response = await request(app).post('/feed/friend/init').send({
             ...feedOwnerUser
