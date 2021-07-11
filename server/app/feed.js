@@ -4,8 +4,8 @@ const {friendNamePrefix} = require("./utils");
 const {feedNamePrefix} = require("./utils");
 const {errorResult} = require("./utils");
 const {okResult, fairOS, appPod, getNewFeedName, feedFilename} = require("./utils");
-var multer = require('multer')
-var upload = multer()
+const multer = require('multer')
+const upload = multer()
 
 module.exports = function (app) {
     // get user combined feed
@@ -36,6 +36,23 @@ module.exports = function (app) {
                 reference = sharedResult.pod_sharing_reference;
                 created = true;
                 okResult(res, {created, name, reference});
+            }
+        } else {
+            errorResult(res, 'Some params missed');
+        }
+    });
+
+    app.post('/feed/friend/get-my-pod-name', async (req, res) => {
+        const {username, password} = req.body;
+
+        if (username && password) {
+            await fairOS.userLogin(username, password);
+            const list = await fairOS.podLs();
+            const pod = list?.pod_name.find(item => item.startsWith(friendNamePrefix));
+            if (pod) {
+                okResult(res, pod);
+            } else {
+                errorResult(res, 'Feed not created');
             }
         } else {
             errorResult(res, 'Some params missed');
@@ -94,6 +111,21 @@ module.exports = function (app) {
             }
 
             okResult(res, result);
+        } else {
+            errorResult(res, 'Some params missed');
+        }
+    });
+
+    app.get('/feed/friend/get-video', async (req, res) => {
+        const {username, password, pod, name} = req.query;
+
+        if (username && password && pod && name) {
+            await fairOS.userLogin(username, password);
+            await fairOS.podOpen(pod, password);
+
+            const data = await fairOS.fileDownload(pod, name, 'binary');
+            res.setHeader('Content-type', 'video/mp4');
+            res.send(data);
         } else {
             errorResult(res, 'Some params missed');
         }

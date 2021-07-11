@@ -178,16 +178,52 @@ describe("Feed test", () => {
         expect(response.body.data).toHaveLength(1);
     });
 
+    function binaryParser(res, callback) {
+        res.setEncoding('binary');
+        res.data = '';
+        res.on('data', function (chunk) {
+            res.data += chunk;
+        });
+        res.on('end', function () {
+            callback(null, new Buffer(res.data, 'binary'));
+        });
+    }
+
     test("Upload more videos to creator's feed", async () => {
+        // limit to speedup testing
+        const checkMaxFiles = 3;
+        let checkedFiles = 0;
+
+        // get actual pod name
+        let response = await request(app).post(`/feed/friend/get-my-pod-name`)
+            .send({
+                ...feedOwnerUser
+            });
+        expect(response.body.result).toBeTruthy();
+        expect(response.body.data).toBeDefined();
+        const podName = response.body.data;
+
         for (let i = 2; i <= 11; i++) {
-            let response = await request(app).post('/feed/friend/upload')
+            const fileName = `./content/${i}.mp4`;
+            // const fileName = `./test/content/${i}.mp4`;
+            const originalFileSize = fs.statSync(fileName).size;
+            response = await request(app).post('/feed/friend/upload')
                 .field('username', feedOwnerUser.username)
                 .field('password', feedOwnerUser.password)
-                .attach('video', `./content/${i}.mp4`);
-            // .attach('video', './test/content/1.mp4');
+                .attach('video', fileName);
             expect(response.body.result).toBeTruthy();
             expect(response.body.data.reference).toHaveLength(128);
             expect(response.body.data.name).toBeDefined();
+            const currentFileName = response.body.data.name;
+
+            if (checkedFiles < checkMaxFiles) {
+                // validate is correct file size after download
+                response = await request(app).get(`/feed/friend/get-video?pod=${podName}&name=${currentFileName}&username=${feedOwnerUser.username}&password=${feedOwnerUser.password}`)
+                    .buffer()
+                    .parse(binaryParser);
+                expect(response.body.length).toEqual(originalFileSize);
+                checkedFiles++;
+            }
         }
 
     }, 60000);

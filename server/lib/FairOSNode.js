@@ -118,7 +118,7 @@ module.exports = class FairOS {
     }
 
     podReceiveInfo(reference) {
-        return this.api('GET', this.isNew?`${this.apiUrl}pod/receiveinfo?sharing_ref=${reference}`:`${this.apiUrl}pod/receiveinfo?ref=${reference}`);
+        return this.api('GET', this.isNew ? `${this.apiUrl}pod/receiveinfo?sharing_ref=${reference}` : `${this.apiUrl}pod/receiveinfo?ref=${reference}`);
     }
 
     dirLs(podName, dir = '/') {
@@ -178,8 +178,19 @@ module.exports = class FairOS {
         return this.api('POST', `${this.apiUrl}kv/delete?pod_name=${podName}`, formData, 'json', 'text');
     }
 
-    fileDownload(podName, file) {
-        return this.api('POST', this.isNew ? `${this.apiUrl}file/download?pod_name=${podName}&file_path=/${file}` : `${this.apiUrl}file/download?file=/${file}`, {}, 'etc', 'text');
+    fileDownload(podName, file, type = 'text') {
+        // return this.api('POST', this.isNew ? `${this.apiUrl}file/download?pod_name=${podName}&file_path=/${file}` : `${this.apiUrl}file/download?file=/${file}`, {}, 'etc', 'text');
+        const url = `${this.apiUrl}file/download?file=/${file}`;
+        const postData = {
+            method: 'POST',
+            headers: {
+                'Cookie': this.cookie
+            },
+            // body: Readable.from(encoder.encode()),
+            credentials: 'include'
+        };
+
+        return fetch(url, postData).then(data => type === 'text' ? data.text() : data.buffer());
     }
 
     fileDelete(podName, file) {

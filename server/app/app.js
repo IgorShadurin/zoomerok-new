@@ -1,7 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const {okResult} = require("./utils");
-const multer = require('multer');
 
 const app = express();
 
