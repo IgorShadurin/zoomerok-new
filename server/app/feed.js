@@ -122,7 +122,7 @@ module.exports = function (app) {
         if (username && password && pod && name) {
             await fairOS.userLogin(username, password);
             await fairOS.podOpen(pod, password);
-
+            // todo check is pod & file exist
             const data = await fairOS.fileDownload(pod, name, 'binary');
             res.setHeader('Content-type', 'video/mp4');
             res.send(data);
