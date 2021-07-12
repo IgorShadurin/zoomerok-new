@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
-import { StatusBar, Platform } from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {StatusBar, Platform} from 'react-native';
 
 import {
   MaterialCommunityIcons,
   AntDesign,
   FontAwesome,
 } from '@expo/vector-icons';
-import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
-import { createStackNavigator } from '@react-navigation/stack';
+import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
+import {createStackNavigator} from '@react-navigation/stack';
+import settings from '../settings.json';
+import {getApi} from '../lib/api';
 
 import HomeButtom from '../components/HomeButton';
 import Discover from '../pages/Discover';
@@ -21,6 +23,18 @@ const Stack = createStackNavigator();
 
 const AppRoutes: React.FC = () => {
   const [home, setHome] = useState(true);
+
+  useEffect(() => {
+    console.log(settings);
+    const api = getApi();
+    api.setServerUrl(settings.serverUrl);
+    api.setCredentials('admin','admin');
+    api.login().then(data=>{
+      console.log(data);
+    })
+    console.log(api);
+
+  }, []);
 
   StatusBar.setBarStyle('dark-content');
 
@@ -54,8 +68,8 @@ const AppRoutes: React.FC = () => {
         }}
         options={{
           tabBarLabel: 'Home',
-          tabBarIcon: ({ color }) => (
-            <FontAwesome name="home" size={24} color={color} />
+          tabBarIcon: ({color}) => (
+            <FontAwesome name="home" size={24} color={color}/>
           ),
         }}
       />
@@ -72,7 +86,7 @@ const AppRoutes: React.FC = () => {
       <Tab.Screen
         name="Live"
         component={Record}
-        listeners={({ navigation }) => ({
+        listeners={({navigation}) => ({
           tabPress: e => {
             // Prevent default action
             e.preventDefault();
@@ -83,7 +97,7 @@ const AppRoutes: React.FC = () => {
         })}
         options={{
           tabBarLabel: '',
-          tabBarIcon: () => <HomeButtom home={home} />,
+          tabBarIcon: () => <HomeButtom home={home}/>,
         }}
       />
       {/*<Tab.Screen*/}
@@ -105,8 +119,8 @@ const AppRoutes: React.FC = () => {
         component={Me}
         options={{
           tabBarLabel: 'Me',
-          tabBarIcon: ({ color }) => (
-            <AntDesign name="user" size={24} color={color} />
+          tabBarIcon: ({color}) => (
+            <AntDesign name="user" size={24} color={color}/>
           ),
         }}
       />
@@ -120,10 +134,10 @@ const RootStackScreen: React.FC = () => {
       <Stack.Screen
         name="Main"
         component={AppRoutes}
-        options={{ headerShown: false }}
+        options={{headerShown: false}}
       />
       <Stack.Screen
-        options={{ headerShown: false }}
+        options={{headerShown: false}}
         name="Record"
         component={Record}
       />

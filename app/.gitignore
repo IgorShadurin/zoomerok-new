@@ -17,3 +17,4 @@ web-report/
 package-lock.json
 yarn.lock
 .idea
+src/settings.json

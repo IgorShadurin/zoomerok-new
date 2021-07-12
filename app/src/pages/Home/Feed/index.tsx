@@ -75,7 +75,7 @@ const Feed: React.FC<Props> = ({play, item}) => {
 
       <Container>
         <Video
-          source={{uri: item.uri}}
+          source={{uri: item.uri + '?username=admin&password=admin',}}
           rate={1.0}
           volume={1.0}
           isMuted={false}
