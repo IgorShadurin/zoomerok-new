@@ -1,4 +1,6 @@
 const FairOS = require('../lib/FairOSNode');
+const fs = require('fs');
+
 /**
  *
  * @type {null|FairOS}
@@ -80,4 +82,42 @@ module.exports.getNewVideoFileName = () => {
     const date = +new Date();
 
     return `${date}.mp4`;
+};
+
+module.exports.saveVideoToStatic = (podOwnerAddress, pod, name, content) => {
+    podOwnerAddress = podOwnerAddress.toLowerCase();
+    pod = pod.toLowerCase();
+    name = name.toLowerCase();
+
+    console.log('process.env', process.env);
+    let videoPath = process.env.APP_STATIC_VIDEO_PATH;
+    videoPath = `${videoPath}/${podOwnerAddress}/${pod}`;
+    fs.mkdirSync(videoPath, {recursive: true});
+    videoPath = `${videoPath}/${name}`;
+    console.log('videoPath', videoPath);
+    fs.writeFileSync(videoPath, content);
+
+    return true;
+};
+
+module.exports.isStaticVideoExists = (podOwnerAddress, pod, name) => {
+    podOwnerAddress = podOwnerAddress.toLowerCase();
+    pod = pod.toLowerCase();
+    name = name.toLowerCase();
+
+    let videoPath = process.env.APP_STATIC_VIDEO_PATH;
+    videoPath = `${videoPath}/${podOwnerAddress}/${pod}/${name}`;
+
+    return fs.existsSync(videoPath);
+};
+
+module.exports.getStaticVideo = (podOwnerAddress, pod, name) => {
+    podOwnerAddress = podOwnerAddress.toLowerCase();
+    pod = pod.toLowerCase();
+    name = name.toLowerCase();
+
+    let videoPath = process.env.APP_STATIC_VIDEO_PATH;
+    videoPath = `${videoPath}/${podOwnerAddress}/${pod}/${name}`;
+
+    return fs.readFileSync(videoPath);
 };

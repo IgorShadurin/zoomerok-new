@@ -1,15 +1,21 @@
 export default class Api {
   serverUrl = '';
+  staticUrl = '';
   username = '';
   password = '';
 
-  constructor(serverUrl = '', username = '', password = '') {
+  constructor(serverUrl = '', staticUrl = '', username = '', password = '') {
     this.serverUrl = serverUrl;
+    this.staticUrl = staticUrl;
     this.setCredentials(username, password);
   }
 
   setServerUrl(serverUrl) {
     this.serverUrl = serverUrl;
+  }
+
+  setStaticUrl(staticUrl) {
+    this.staticUrl = staticUrl;
   }
 
   postJson(method, data = {}, isSendLoginPassword = true) {
@@ -36,6 +42,18 @@ export default class Api {
 
   login() {
     return this.postJson('user/login');
+  }
+
+  getVideos() {
+    return this.postJson('feed/friend/get-videos');
+  }
+
+  getVideoUrl(pod, name) {
+    return `${this.serverUrl}/feed/friend/get-video?username=${this.username}&password=${this.password}&pod=${pod}&name=${name}`;
+  }
+
+  getStaticVideo(podOwnerAddress, pod, name) {
+    return `${this.staticUrl}/${podOwnerAddress}/${pod}/${name}`;
   }
 }
 

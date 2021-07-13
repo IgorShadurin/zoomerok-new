@@ -4,7 +4,9 @@ const {friendNamePrefix} = require("./utils");
 const {feedNamePrefix} = require("./utils");
 const {errorResult} = require("./utils");
 const {okResult, fairOS, appPod, getNewFeedName, feedFilename} = require("./utils");
-const multer = require('multer')
+const multer = require('multer');
+const fs = require('fs');
+const {saveVideoToStatic} = require("./utils");
 const upload = multer()
 
 module.exports = function (app) {
@@ -116,20 +118,42 @@ module.exports = function (app) {
         }
     });
 
-    app.get('/feed/friend/get-video', async (req, res) => {
-        const {username, password, pod, name} = req.query;
-
-        if (username && password && pod && name) {
-            await fairOS.userLogin(username, password);
-            await fairOS.podOpen(pod, password);
-            // todo check is pod & file exist
-            const data = await fairOS.fileDownload(pod, name, 'binary');
-            res.setHeader('Content-type', 'video/mp4');
-            res.send(data);
-        } else {
-            errorResult(res, 'Some params missed');
-        }
-    });
+    // app.get('/feed/friend/get-video', async (req, res) => {
+    //     const {username, password, pod, name} = req.query;
+    //     const range = req.headers.range;
+    //
+    //     console.log('range', range)
+    //     if (username && password && pod && name) {
+    //         await fairOS.userLogin(username, password);
+    //         await fairOS.podOpen(pod, password);
+    //         // todo check is pod & file exist
+    //         // todo implement cache on other domain (file accessible via pod/name url) and chunks managed by apache
+    //         // todo implement removing video from fairos&cache
+    //         const data = await fairOS.fileDownload(pod, name, 'binary');
+    //         // const data = fs.readFileSync('../test/content/4.mp4');
+    //         const fileSize = data.length;
+    //         console.log('fileSize', fileSize)
+    //         if (range) {
+    //             const parts = range.replace(/bytes=/, "").split("-")
+    //             const start = parseInt(parts[0], 10)
+    //             const end = parts[1]
+    //                 ? parseInt(parts[1], 10)
+    //                 : fileSize - 1
+    //             const chunksize = (end - start) + 1;
+    //             res.setHeader('Content-Range', `bytes ${start}-${end}/${fileSize}`);
+    //             res.setHeader('Accept-Ranges', 'bytes');
+    //             res.setHeader('Content-Length', chunksize);
+    //             res.setHeader('Content-type', 'video/mp4');
+    //             res.send(data.slice(start, end+1));
+    //         } else {
+    //             res.setHeader('Content-Length', fileSize);
+    //             res.setHeader('Content-type', 'video/mp4');
+    //             res.send(data);
+    //         }
+    //     } else {
+    //         errorResult(res, 'Some params missed');
+    //     }
+    // });
 
     app.post('/feed/friend/get-my-videos', async (req, res) => {
         const {username, password} = req.body;
@@ -188,6 +212,7 @@ module.exports = function (app) {
 
         if (username && password) {
             await fairOS.userLogin(username, password);
+            const userInfo = await fairOS.userStat();
             const list = await fairOS.podLs();
             const filtered = list?.pod_name.filter(item => item.startsWith(friendNamePrefix));
             if (filtered.length === 0) {
@@ -202,6 +227,7 @@ module.exports = function (app) {
             const fileName = response?.References[0]?.file_name;
             const reference = response?.References[0]?.reference;
             if (reference) {
+                saveVideoToStatic(userInfo.reference, pod, fileName, video.buffer);
                 okResult(res, {reference, name: fileName});
             } else {
                 errorResult(res, 'File not uploaded');
@@ -314,6 +340,21 @@ module.exports = function (app) {
             errorResult(res, 'Some params missed');
         }
     });
+
+    // app.post('/feed/test', async (req, res) => {
+    //     const {username, password} = req.body;
+    //
+    //     if (username && password) {
+    //         let data = await fairOS.userLogin(username, password);
+    //         console.log(data);
+    //         data = await fairOS.userStat();
+    //         console.log(data);
+    //
+    //         okResult(res);
+    //     } else {
+    //         errorResult(res, 'Some params missed');
+    //     }
+    // });
 
     // to implement deleting we should store "deleted" pods in Zoomerok pod
     // app.delete('/feed/source/delete', async (req, res) => {

@@ -216,14 +216,15 @@ describe("Feed test", () => {
             expect(response.body.data.name).toBeDefined();
             const currentFileName = response.body.data.name;
 
-            if (checkedFiles < checkMaxFiles) {
-                // validate is correct file size after download
-                response = await request(app).get(`/feed/friend/get-video?pod=${podName}&name=${currentFileName}&username=${feedOwnerUser.username}&password=${feedOwnerUser.password}`)
-                    .buffer()
-                    .parse(binaryParser);
-                expect(response.body.length).toEqual(originalFileSize);
-                checkedFiles++;
-            }
+            // todo get video file from static server
+            // if (checkedFiles < checkMaxFiles) {
+            //     // validate is correct file size after download
+            //     response = await request(app).get(`/feed/friend/get-video?pod=${podName}&name=${currentFileName}&username=${feedOwnerUser.username}&password=${feedOwnerUser.password}`)
+            //         .buffer()
+            //         .parse(binaryParser);
+            //     expect(response.body.length).toEqual(originalFileSize);
+            //     checkedFiles++;
+            // }
         }
 
     }, 60000);
@@ -242,4 +243,11 @@ describe("Feed test", () => {
         // 10 not 11, because feed limitation for every user
         expect(response.body.data).toHaveLength(10);
     });
+
+    // test("test", async () => {
+    //     let response = await request(app).post('/feed/test').send({
+    //         ...testUser
+    //     });
+    //     console.log(response.body);
+    // });
 });

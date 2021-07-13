@@ -69,6 +69,10 @@ module.exports = class FairOS {
         return this.api('POST', this.isNew ? `${this.apiUrl}user/login` : `${this.apiUrl}user/login?user=${username}&password=${password}`, formData);
     }
 
+    userStat() {
+        return this.api('GET', `${this.apiUrl}user/stat`);
+    }
+
     userSignup(username, password, mnemonic = '') {
         const formData = this.isNew ? {
             user_name: username,
