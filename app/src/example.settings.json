@@ -1,3 +1,4 @@
 {
-  "serverUrl": "https://mydomain.com"
+  "serverUrl": "https://mydomain.com",
+  "staticUrl": "https://mydomain2.com/video"
 }

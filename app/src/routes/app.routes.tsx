@@ -23,17 +23,35 @@ const Stack = createStackNavigator();
 
 const AppRoutes: React.FC = () => {
   const [home, setHome] = useState(true);
+  const [feedVideos, setFeedVideos] = useState([
+    {
+      "music": "Some music",
+      "tags": "#test #test",
+      "uri": "http://sdancer.local/video/0xb99f13a77ae04d27a41bef2265ffd75e83c91147/zoo-friend-2c6fc78bc09b/1626189765528.mp4",
+      "username": "test",
+    }
+    ]);
 
   useEffect(() => {
-    console.log(settings);
+    async function getVideos() {
+      let videos = (await api.getVideos()).data;
+      videos = (videos.splice(0,3)).map((item,i) => ({
+        uri: api.getStaticVideo(item.pod, item.name),
+        username: 'test '+i,
+        tags: '#test #test',
+        music: 'Some music'
+      }));
+      console.log(videos);
+      setFeedVideos(videos);
+    }
+
     const api = getApi();
     api.setServerUrl(settings.serverUrl);
-    api.setCredentials('admin','admin');
-    api.login().then(data=>{
-      console.log(data);
-    })
-    console.log(api);
+    api.setStaticUrl(settings.staticUrl);
+    api.setCredentials('admin', 'admin');
+    getVideos().then(() => {
 
+    });
   }, []);
 
   StatusBar.setBarStyle('dark-content');
@@ -61,7 +79,8 @@ const AppRoutes: React.FC = () => {
     >
       <Tab.Screen
         name="Home"
-        component={Home}
+        // component={Home}
+        // children={() => <Home feedVideos={feedVideos}/>}
         listeners={{
           focus: () => setHome(true),
           blur: () => setHome(false),
@@ -72,7 +91,9 @@ const AppRoutes: React.FC = () => {
             <FontAwesome name="home" size={24} color={color}/>
           ),
         }}
-      />
+      >
+        {() => <Home feedVideos={feedVideos}/>}
+      </Tab.Screen>
       {/*<Tab.Screen*/}
       {/*  name="Discover"*/}
       {/*  component={Discover}*/}
