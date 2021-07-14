@@ -178,17 +178,6 @@ describe("Feed test", () => {
         expect(response.body.data).toHaveLength(1);
     });
 
-    function binaryParser(res, callback) {
-        res.setEncoding('binary');
-        res.data = '';
-        res.on('data', function (chunk) {
-            res.data += chunk;
-        });
-        res.on('end', function () {
-            callback(null, new Buffer(res.data, 'binary'));
-        });
-    }
-
     test("Upload more videos to creator's feed", async () => {
         // limit to speedup testing
         const checkMaxFiles = 3;

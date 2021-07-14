@@ -49,6 +49,14 @@ module.exports.uuid = () => {
     });
 };
 
+module.exports.redisPrefix = 'zoomerok:';
+
+module.exports.redisPodOwnerKey = 'pod_owner';
+
+module.exports.getRedisPodOwnerKey = (pod) => {
+    return `${module.exports.redisPrefix}${module.exports.redisPodOwnerKey}:${pod.toLowerCase()}`;
+};
+
 module.exports.feedFilename = 'feed.json';
 
 module.exports.appPod = 'Zoomerok';
@@ -84,40 +92,41 @@ module.exports.getNewVideoFileName = () => {
     return `${date}.mp4`;
 };
 
-module.exports.saveVideoToStatic = (podOwnerAddress, pod, name, content) => {
-    podOwnerAddress = podOwnerAddress.toLowerCase();
+module.exports.saveVideoToStatic = (/*podOwnerAddress, */pod, name, content) => {
+    // podOwnerAddress = podOwnerAddress.toLowerCase();
     pod = pod.toLowerCase();
     name = name.toLowerCase();
 
-    console.log('process.env', process.env);
     let videoPath = process.env.APP_STATIC_VIDEO_PATH;
-    videoPath = `${videoPath}/${podOwnerAddress}/${pod}`;
+    // videoPath = `${videoPath}/${podOwnerAddress}/${pod}`;
+    videoPath = `${videoPath}/${pod}`;
     fs.mkdirSync(videoPath, {recursive: true});
     videoPath = `${videoPath}/${name}`;
-    console.log('videoPath', videoPath);
     fs.writeFileSync(videoPath, content);
 
     return true;
 };
 
-module.exports.isStaticVideoExists = (podOwnerAddress, pod, name) => {
-    podOwnerAddress = podOwnerAddress.toLowerCase();
+module.exports.isStaticVideoExists = (/*podOwnerAddress, */pod, name) => {
+    // podOwnerAddress = podOwnerAddress.toLowerCase();
     pod = pod.toLowerCase();
     name = name.toLowerCase();
 
     let videoPath = process.env.APP_STATIC_VIDEO_PATH;
-    videoPath = `${videoPath}/${podOwnerAddress}/${pod}/${name}`;
+    // videoPath = `${videoPath}/${podOwnerAddress}/${pod}/${name}`;
+    videoPath = `${videoPath}/${pod}/${name}`;
 
     return fs.existsSync(videoPath);
 };
 
-module.exports.getStaticVideo = (podOwnerAddress, pod, name) => {
-    podOwnerAddress = podOwnerAddress.toLowerCase();
+module.exports.getStaticVideo = (/*podOwnerAddress, */pod, name) => {
+    // podOwnerAddress = podOwnerAddress.toLowerCase();
     pod = pod.toLowerCase();
     name = name.toLowerCase();
 
     let videoPath = process.env.APP_STATIC_VIDEO_PATH;
-    videoPath = `${videoPath}/${podOwnerAddress}/${pod}/${name}`;
+    // videoPath = `${videoPath}/${podOwnerAddress}/${pod}/${name}`;
+    videoPath = `${videoPath}/${pod}/${name}`;
 
     return fs.readFileSync(videoPath);
 };

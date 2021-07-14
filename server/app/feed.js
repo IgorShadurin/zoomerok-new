@@ -1,13 +1,21 @@
-const {getNewVideoFileName} = require("./utils");
-const {getFriendFeedName} = require("./utils");
-const {friendNamePrefix} = require("./utils");
-const {feedNamePrefix} = require("./utils");
-const {errorResult} = require("./utils");
-const {okResult, fairOS, appPod, getNewFeedName, feedFilename} = require("./utils");
+const {
+    saveVideoToStatic,
+    errorResult,
+    getFriendFeedName,
+    getNewVideoFileName,
+    friendNamePrefix,
+    feedNamePrefix,
+    okResult,
+    fairOS,
+    getNewFeedName,
+    feedFilename,
+    getRedisPodOwnerKey
+} = require("./utils");
 const multer = require('multer');
 const fs = require('fs');
-const {saveVideoToStatic} = require("./utils");
-const upload = multer()
+const upload = multer();
+// const asyncRedis = require("async-redis");
+// const client = asyncRedis.createClient();
 
 module.exports = function (app) {
     // get user combined feed
@@ -17,6 +25,12 @@ module.exports = function (app) {
     //     console.log(openResult);
     //     okResult(res);
     // });
+
+    // async function cachePodOwner(pod, owner) {
+    //     const redisKey = getRedisPodOwnerKey(pod);
+    //     console.log('redisKey', redisKey, 'redis value', owner.toLowerCase());
+    //     await client.set(redisKey, owner.toLowerCase());
+    // }
 
     app.post('/feed/friend/init', async (req, res) => {
         const {username, password} = req.body;
@@ -32,11 +46,13 @@ module.exports = function (app) {
                 errorResult(res, 'Already added');
             } else {
                 name = getFriendFeedName();
+                const address = (await fairOS.userStat()).reference;
                 await fairOS.podNew(name, password);
                 await fairOS.userLogin(username, password);
                 const sharedResult = await fairOS.podShare(name, password);
                 reference = sharedResult.pod_sharing_reference;
                 created = true;
+                // await cachePodOwner(name, address);
                 okResult(res, {created, name, reference});
             }
         } else {
@@ -108,7 +124,20 @@ module.exports = function (app) {
                     await fairOS.podOpen(currentPod, password);
                     let files = await fairOS.dirLs(currentPod);
                     const entries = (files.entries ? files.entries.sort().reverse() : []).slice(0, maxItemsFromUser);
-                    entries.forEach(item => result.push({pod: currentPod, name: item.name}));
+                    // const key = getRedisPodOwnerKey(currentPod);
+                    // console.log('redis get key', key);
+                    // let address = await client.get(key);
+                    // console.log('redis received address', address);
+                    // if (!(typeof address === 'string' && address.length === 42)) {
+                    //     // todo get data from fairos & cache it
+                    //     throw new Error("Address not received");
+                    // }
+
+                    entries.forEach(item => result.push({
+                        pod: currentPod,
+                        name: item.name,
+                        // address
+                    }));
                 }
             }
 
@@ -117,43 +146,6 @@ module.exports = function (app) {
             errorResult(res, 'Some params missed');
         }
     });
-
-    // app.get('/feed/friend/get-video', async (req, res) => {
-    //     const {username, password, pod, name} = req.query;
-    //     const range = req.headers.range;
-    //
-    //     console.log('range', range)
-    //     if (username && password && pod && name) {
-    //         await fairOS.userLogin(username, password);
-    //         await fairOS.podOpen(pod, password);
-    //         // todo check is pod & file exist
-    //         // todo implement cache on other domain (file accessible via pod/name url) and chunks managed by apache
-    //         // todo implement removing video from fairos&cache
-    //         const data = await fairOS.fileDownload(pod, name, 'binary');
-    //         // const data = fs.readFileSync('../test/content/4.mp4');
-    //         const fileSize = data.length;
-    //         console.log('fileSize', fileSize)
-    //         if (range) {
-    //             const parts = range.replace(/bytes=/, "").split("-")
-    //             const start = parseInt(parts[0], 10)
-    //             const end = parts[1]
-    //                 ? parseInt(parts[1], 10)
-    //                 : fileSize - 1
-    //             const chunksize = (end - start) + 1;
-    //             res.setHeader('Content-Range', `bytes ${start}-${end}/${fileSize}`);
-    //             res.setHeader('Accept-Ranges', 'bytes');
-    //             res.setHeader('Content-Length', chunksize);
-    //             res.setHeader('Content-type', 'video/mp4');
-    //             res.send(data.slice(start, end+1));
-    //         } else {
-    //             res.setHeader('Content-Length', fileSize);
-    //             res.setHeader('Content-type', 'video/mp4');
-    //             res.send(data);
-    //         }
-    //     } else {
-    //         errorResult(res, 'Some params missed');
-    //     }
-    // });
 
     app.post('/feed/friend/get-my-videos', async (req, res) => {
         const {username, password} = req.body;
@@ -212,7 +204,7 @@ module.exports = function (app) {
 
         if (username && password) {
             await fairOS.userLogin(username, password);
-            const userInfo = await fairOS.userStat();
+            // const userInfo = await fairOS.userStat();
             const list = await fairOS.podLs();
             const filtered = list?.pod_name.filter(item => item.startsWith(friendNamePrefix));
             if (filtered.length === 0) {
@@ -227,7 +219,8 @@ module.exports = function (app) {
             const fileName = response?.References[0]?.file_name;
             const reference = response?.References[0]?.reference;
             if (reference) {
-                saveVideoToStatic(userInfo.reference, pod, fileName, video.buffer);
+                // saveVideoToStatic(userInfo.reference, pod, fileName, video.buffer);
+                saveVideoToStatic(pod, fileName, video.buffer);
                 okResult(res, {reference, name: fileName});
             } else {
                 errorResult(res, 'File not uploaded');
@@ -243,6 +236,7 @@ module.exports = function (app) {
 
         if (username && password && content) {
             await fairOS.userLogin(username, password);
+            const address = (await fairOS.userStat()).reference;
             const feedName = getNewFeedName();
             await fairOS.podNew(feedName, password);
             // we should relogin because fairOS 0.5.2 bug
@@ -252,6 +246,7 @@ module.exports = function (app) {
             // we should relogin because fairOS 0.5.2 bug
             await fairOS.userLogin(username, password);
             const result = await fairOS.podShare(feedName, password);
+            // await cachePodOwner(feedName, address);
             okResult(res, {
                 name: feedName,
                 reference: result.pod_sharing_reference

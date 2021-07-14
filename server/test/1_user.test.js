@@ -4,8 +4,6 @@ const {notExistsUser} = require("./shared");
 const {testUser} = require("./shared");
 const {feedOwnerUser} = require("./shared");
 
-
-
 describe("User test / create new", () => {
     // beforeAll(() => {
     //     console.log('before all');
