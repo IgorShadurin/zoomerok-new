@@ -17,12 +17,13 @@ import {
   Music,
   MusicBox,
   BoxAction,
-  TextAction,
+  TextAction, Description,
 } from './styles';
 
 interface Item {
   id: number;
   username: string;
+  text: string;
   tags: string;
   music: string;
   likes: number;
@@ -89,12 +90,13 @@ const Feed: React.FC<Props> = ({play, item}) => {
         />
       </Container>
       <Details>
-        <User>{item.username}</User>
-        <Tags>{item.tags}</Tags>
-        <MusicBox>
-          <FontAwesome name="music" size={15} color="#f5f5f5"/>
-          <Music>{item.music}</Music>
-        </MusicBox>
+        <User>@{item.username}</User>
+        <Description>{item.text}</Description>
+        {/*<Tags>{item.tags}</Tags>*/}
+        {/*<MusicBox>*/}
+        {/*  <FontAwesome name="music" size={15} color="#f5f5f5"/>*/}
+        {/*  <Music>{item.music}</Music>*/}
+        {/*</MusicBox>*/}
       </Details>
       <Actions>
         {/*<BoxAction>*/}

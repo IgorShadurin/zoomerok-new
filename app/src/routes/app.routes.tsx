@@ -22,7 +22,7 @@ const Tab = createMaterialBottomTabNavigator();
 const Stack = createStackNavigator();
 
 const AppRoutes: React.FC = () => {
-  const [home, setHome] = useState(true);
+  const [home, setHome] = useState(false);
   const [feedVideos, setFeedVideos] = useState([
     {
       "music": "Some music",
@@ -30,14 +30,18 @@ const AppRoutes: React.FC = () => {
       "uri": "http://sdancer.local/video/0xb99f13a77ae04d27a41bef2265ffd75e83c91147/zoo-friend-2c6fc78bc09b/1626189765528.mp4",
       "username": "test",
     }
-    ]);
+  ]);
+  const [user, setUser] = useState({});
+  const api = getApi();
 
   useEffect(() => {
+    // todo load username/password from storage to object and open feed page
     async function getVideos() {
       let videos = (await api.getVideos()).data;
-      videos = (videos.splice(0,3)).map((item,i) => ({
+      videos = (videos.splice(0, 3)).map((item, i) => ({
         uri: api.getStaticVideo(item.pod, item.name),
-        username: 'test '+i,
+        username: 'user' + i,
+        text: 'Hello world',
         tags: '#test #test',
         music: 'Some music'
       }));
@@ -45,7 +49,6 @@ const AppRoutes: React.FC = () => {
       setFeedVideos(videos);
     }
 
-    const api = getApi();
     api.setServerUrl(settings.serverUrl);
     api.setStaticUrl(settings.staticUrl);
     api.setCredentials('admin', 'admin');
@@ -53,6 +56,47 @@ const AppRoutes: React.FC = () => {
 
     });
   }, []);
+
+  async function onRegister(username, password, mnemonic = '') {
+    setUser(data => ({...data, isRegister: true, message: null}));
+    const response = await api.register(username, password, mnemonic);
+    if (response.result) {
+      // todo store credentials to storage
+      api.setCredentials(username, password);
+      setUser(data => ({
+        ...data,
+        isRegister: false,
+        username,
+        password,
+        mnemonic: mnemonic ? mnemonic : response.data.mnemonic,
+      }));
+    } else {
+      api.setCredentials('', '');
+      setUser(data => ({...data, isRegister: false, message: 'User exists or incorrect data'}));
+    }
+    // todo show seed phrase
+  }
+
+  async function onLogin(username, password) {
+    setUser(data => ({...data, isLogin: true, message: null}));
+    api.setCredentials(username, password);
+    if (await api.login()) {
+      // todo store credentials to storage
+      setUser(data => ({...data, isLogin: false, username, password}));
+    } else {
+      api.setCredentials('', '');
+      setUser(data => ({...data, isLogin: false, message: 'Incorrect login or password'}));
+    }
+  }
+
+  function onLogout() {
+    // todo remove from local storage
+    setUser({});
+  }
+
+  function onMnemonicRecorded() {
+    setUser(data => ({...data, mnemonic: ''}));
+  }
 
   StatusBar.setBarStyle('dark-content');
 
@@ -74,13 +118,11 @@ const AppRoutes: React.FC = () => {
       barStyle={{
         backgroundColor: home ? '#000' : '#fff',
       }}
-      initialRouteName="Home"
+      initialRouteName="Me"
       activeColor={home ? '#fff' : '#000'}
     >
-      <Tab.Screen
+      {(user.username && !user.mnemonic) && <Tab.Screen
         name="Home"
-        // component={Home}
-        // children={() => <Home feedVideos={feedVideos}/>}
         listeners={{
           focus: () => setHome(true),
           blur: () => setHome(false),
@@ -93,7 +135,7 @@ const AppRoutes: React.FC = () => {
         }}
       >
         {() => <Home feedVideos={feedVideos}/>}
-      </Tab.Screen>
+      </Tab.Screen>}
       {/*<Tab.Screen*/}
       {/*  name="Discover"*/}
       {/*  component={Discover}*/}
@@ -104,7 +146,7 @@ const AppRoutes: React.FC = () => {
       {/*    ),*/}
       {/*  }}*/}
       {/*/>*/}
-      <Tab.Screen
+      {(user.username && !user.mnemonic) && <Tab.Screen
         name="Live"
         component={Record}
         listeners={({navigation}) => ({
@@ -120,7 +162,7 @@ const AppRoutes: React.FC = () => {
           tabBarLabel: '',
           tabBarIcon: () => <HomeButtom home={home}/>,
         }}
-      />
+      />}
       {/*<Tab.Screen*/}
       {/*  name="Inbox"*/}
       {/*  component={Inbox}*/}
@@ -137,14 +179,16 @@ const AppRoutes: React.FC = () => {
       {/*/>*/}
       <Tab.Screen
         name="Me"
-        component={Me}
+        // component={Me}
         options={{
           tabBarLabel: 'Me',
           tabBarIcon: ({color}) => (
             <AntDesign name="user" size={24} color={color}/>
           ),
         }}
-      />
+      >
+        {() => <Me user={user} onLogin={onLogin} onLogout={onLogout} onRegister={onRegister} onMnemonicRecorded={onMnemonicRecorded}/>}
+      </Tab.Screen>
     </Tab.Navigator>
   );
 };

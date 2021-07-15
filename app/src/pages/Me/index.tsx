@@ -1,7 +1,6 @@
 import React from 'react';
-import { ScrollView } from 'react-native';
-
-import { MaterialIcons, AntDesign, FontAwesome } from '@expo/vector-icons';
+import {ScrollView, SafeAreaView, StyleSheet, TextInput, Button, View, Alert, Text} from 'react-native';
+import {MaterialIcons, AntDesign, FontAwesome} from '@expo/vector-icons';
 
 import avatar from '../../assets/avatar.png';
 
@@ -20,10 +19,69 @@ import {
   ProfileColumn,
   ProfileEdit,
   ProfileText,
-  Bookmark,
+  Bookmark, AuthError, MnemonicWarning, MnemonicItem,
 } from './styles';
 
-const Me: React.FC = () => {
+const Me: React.FC = ({user, onLogin, onLogout, onRegister, onMnemonicRecorded}) => {
+  const [username, setUsername] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [isRegistrationForm, setIsRegistrationForm] = React.useState(false);
+
+  const styles = StyleSheet.create({
+    input: {
+      width: 350,
+      height: 40,
+      padding: 8,
+      margin: 12,
+      borderWidth: 1,
+    },
+    buttonSecondary: {
+      marginTop: 20,
+      fontSize: 20,
+    },
+    container: {
+      padding: 20,
+      flex: 1,
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      alignItems: 'flex-start'
+    },
+    item: {
+      width: '50%'
+    }
+  });
+
+  const showLogoutAlert = () =>
+    Alert.alert(
+      "Really logout?",
+      "Clear local data from your device",
+      [
+        {
+          text: "Cancel",
+          onPress: () => {
+            console.log('cancel pressed');
+          },
+          style: "cancel",
+        },
+        {
+          text: "Logout",
+          onPress: () => {
+            onLogout();
+            console.log('logout pressed');
+          },
+          style: "destructive",
+        },
+      ],
+      {
+        cancelable: true,
+        onDismiss: () => console.log('onDismiss')
+      }
+    );
+
+  const isAction = user.isRegister || user.isLogin;
+  const isEmptyInputs = username.length < 3 && password.length < 3;
+  const mnemonicWords = user.mnemonic ? user.mnemonic.split(' ') : [];
+
   return (
     <Container>
       <Header>
@@ -42,36 +100,159 @@ const Me: React.FC = () => {
         {/*  color="black"*/}
         {/*/>*/}
       </Header>
-      <ScrollView>
-        <Content>
-          <Avatar source={avatar} />
-          <Username>@matheuscastroweb</Username>
-          <Stats>
-            <StatsColumn>
-              <StatsNumber>1950</StatsNumber>
-              <StatsText>Following</StatsText>
-            </StatsColumn>
-            {/*<Separator>|</Separator>*/}
-            {/*<StatsColumn>*/}
-            {/*  <StatsNumber>650</StatsNumber>*/}
-            {/*  <StatsText>Followers</StatsText>*/}
-            {/*</StatsColumn>*/}
-            {/*<Separator>|</Separator>*/}
-            {/*<StatsColumn>*/}
-            {/*  <StatsNumber>950</StatsNumber>*/}
-            {/*  <StatsText>Likes</StatsText>*/}
-            {/*</StatsColumn>*/}
-          </Stats>
-          {/*<ProfileColumn>*/}
-          {/*  <ProfileEdit>*/}
-          {/*    <ProfileText>Edit profile</ProfileText>*/}
-          {/*  </ProfileEdit>*/}
-          {/*  <Bookmark name="bookmark" size={24} color="black" />*/}
-          {/*</ProfileColumn>*/}
+      <SafeAreaView>
+        <ScrollView>
+          {(user.username && !!user.mnemonic) && <Content>
+            <Username>Mnemonic phrase</Username>
+            <MnemonicWarning>Mnemonic phrase is the only way to recover your account. Please write these words to paper
+              or
+              other safe place.</MnemonicWarning>
 
-          {/*<StatsText>Tap to add bio</StatsText>*/}
-        </Content>
-      </ScrollView>
+            <View style={styles.container}>
+              <View style={styles.item}>
+                <MnemonicItem>1 - {mnemonicWords[0]}</MnemonicItem>
+              </View>
+              <View style={styles.item}>
+                <MnemonicItem>7 - {mnemonicWords[6]}</MnemonicItem>
+              </View>
+              <View style={styles.item}>
+                <MnemonicItem>2 - {mnemonicWords[1]}</MnemonicItem>
+              </View>
+              <View style={styles.item}>
+                <MnemonicItem>8 - {mnemonicWords[7]}</MnemonicItem>
+              </View>
+              <View style={styles.item}>
+                <MnemonicItem>3 - {mnemonicWords[2]}</MnemonicItem>
+              </View>
+              <View style={styles.item}>
+                <MnemonicItem>9 - {mnemonicWords[8]}</MnemonicItem>
+              </View>
+
+              <View style={styles.item}>
+                <MnemonicItem>4 - {mnemonicWords[3]}</MnemonicItem>
+              </View>
+              <View style={styles.item}>
+                <MnemonicItem>10 - {mnemonicWords[9]}</MnemonicItem>
+              </View>
+              <View style={styles.item}>
+                <MnemonicItem>5 - {mnemonicWords[4]}</MnemonicItem>
+              </View>
+              <View style={styles.item}>
+                <MnemonicItem>11 - {mnemonicWords[10]}</MnemonicItem>
+              </View>
+              <View style={styles.item}>
+                <MnemonicItem>6 - {mnemonicWords[5]}</MnemonicItem>
+              </View>
+              <View style={styles.item}>
+                <MnemonicItem>12 - {mnemonicWords[11]}</MnemonicItem>
+              </View>
+            </View>
+
+            <Button
+              title="Recorded!"
+              onPress={onMnemonicRecorded}/>
+
+          </Content>}
+
+          {(user.username && !user.mnemonic) && <Content>
+            <Avatar source={avatar}/>
+            <Username>@{user.username}</Username>
+            <Button
+              title="Logout"
+              onPress={showLogoutAlert}/>
+            <Stats>
+              {/*<StatsColumn>*/}
+              {/*  <StatsNumber>1950</StatsNumber>*/}
+              {/*  <StatsText>Following</StatsText>*/}
+              {/*</StatsColumn>*/}
+              {/*<Separator>|</Separator>*/}
+              {/*<StatsColumn>*/}
+              {/*  <StatsNumber>650</StatsNumber>*/}
+              {/*  <StatsText>Followers</StatsText>*/}
+              {/*</StatsColumn>*/}
+              {/*<Separator>|</Separator>*/}
+              {/*<StatsColumn>*/}
+              {/*  <StatsNumber>950</StatsNumber>*/}
+              {/*  <StatsText>Likes</StatsText>*/}
+              {/*</StatsColumn>*/}
+            </Stats>
+            {/*<ProfileColumn>*/}
+            {/*  <ProfileEdit>*/}
+            {/*    <ProfileText>Edit profile</ProfileText>*/}
+            {/*  </ProfileEdit>*/}
+            {/*  <Bookmark name="bookmark" size={24} color="black" />*/}
+            {/*</ProfileColumn>*/}
+
+            {/*<StatsText>Tap to add bio</StatsText>*/}
+          </Content>}
+          {!user.username && <Content>
+            <Username>{isRegistrationForm ? 'Registration' : 'Authentication'}</Username>
+            <Username>{user.isLogin ? 'Processing...' : 'Enter your credentials'}</Username>
+            {user.message && <AuthError>{user.message}</AuthError>}
+
+            <TextInput
+              editable={!isAction}
+              style={styles.input}
+              onChangeText={setUsername}
+              value={username}
+              placeholder="Username"
+            />
+
+            <TextInput
+              editable={!isAction}
+              secureTextEntry={true}
+              style={styles.input}
+              onChangeText={setPassword}
+              value={password}
+              placeholder="Password"
+            />
+
+            <View style={{
+              marginTop: 20
+            }
+            }>
+              {isRegistrationForm ? <Button
+                title="Create account"
+                disabled={isAction || isEmptyInputs}
+                onPress={() => {
+                  console.log('Create account pressed');
+                  onRegister(username, password);
+                }}
+              /> : <Button
+                title="Login"
+                disabled={isAction || isEmptyInputs}
+                onPress={() => {
+                  console.log('Login pressed');
+                  onLogin(username, password);
+                }}
+              />}
+            </View>
+
+
+            <View style={{
+              marginTop: 40
+            }
+            }>
+              {isRegistrationForm ? <Button
+                title="Want to login?"
+                onPress={() => {
+                  console.log('Login switch pressed');
+                  setIsRegistrationForm(false);
+                }}
+              /> : <Button
+                title="Want to register?"
+                onPress={() => {
+                  console.log('Registration switch pressed');
+                  setIsRegistrationForm(true);
+                }}
+              />}
+            </View>
+
+          </Content>
+          }
+
+        </ScrollView>
+      </SafeAreaView>
     </Container>
   );
 };

@@ -40,8 +40,13 @@ export default class Api {
     this.password = password;
   }
 
-  login() {
-    return this.postJson('user/login');
+  async login() {
+    const data = await this.postJson('user/login');
+    return data.result;
+  }
+
+  register(username, password, mnemonic = '') {
+    return this.postJson('user/new', {username, password, mnemonic}, false);
   }
 
   getVideos() {

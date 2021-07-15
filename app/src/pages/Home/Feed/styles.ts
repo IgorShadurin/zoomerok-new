@@ -31,6 +31,12 @@ export const Tags = styled.Text`
   padding: 5px 0;
   color: #fff;
 `;
+export const Description = styled.Text`
+  font-size: 16px;
+  line-height: 22px;
+  padding: 5px 0;
+  color: #fff;
+`;
 export const MusicBox = styled.View`
   flex-direction: row;
   align-items: center;

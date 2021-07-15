@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "ticktok-clone-app",
-    "slug": "ticktopcloneapp",
+    "name": "zoomerok-fair-app",
+    "slug": "zoomerokfairapp",
     "privacy": "public",
     "platforms": ["ios", "android"],
     "version": "1.0.0",

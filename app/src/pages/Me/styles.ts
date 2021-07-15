@@ -40,6 +40,21 @@ export const Username = styled.Text`
   padding: 10px;
 `;
 
+export const MnemonicWarning = styled.Text`
+  font-size: 15px;
+  padding: 10px;
+`;
+
+export const MnemonicItem = styled.Text`
+  font-size: 20px;
+`;
+
+export const AuthError = styled.Text`
+  color: red;
+  font-size: 18px;
+  padding: 10px;
+`;
+
 export const Stats = styled.View`
   flex-direction: row;
   padding: 10px;
