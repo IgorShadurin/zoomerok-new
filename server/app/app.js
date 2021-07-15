@@ -2,7 +2,11 @@ const fs = require('fs');
 const express = require('express');
 const bodyParser = require('body-parser');
 const {okResult} = require("./utils");
-require('dotenv').config({path: '../.env'});
+
+const envPathFirst = `${process.env.PWD}/../.env`;
+const envPathSecond = `${process.env.PWD}/.env`;
+const envPath = fs.existsSync(envPathFirst) ? envPathFirst : envPathSecond;
+require('dotenv').config({path: envPath});
 
 function validateEnv() {
     const staticPath = process.env.APP_STATIC_VIDEO_PATH;

@@ -18,3 +18,8 @@ module.exports.notExistsUser = {
     username: 'abc',
     password: 'abc'
 };
+
+module.exports.withoutSeedUser = {
+    username: 'noseeduser0',
+    password: 'noseeduser0'
+};

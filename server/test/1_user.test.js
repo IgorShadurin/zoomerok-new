@@ -1,8 +1,6 @@
 const request = require("supertest");
 const app = require("../app/app");
-const {notExistsUser} = require("./shared");
-const {testUser} = require("./shared");
-const {feedOwnerUser} = require("./shared");
+const {notExistsUser, withoutSeedUser, testUser, feedOwnerUser} = require("./shared");
 
 describe("User test / create new", () => {
     // beforeAll(() => {
@@ -27,6 +25,14 @@ describe("User test / create new", () => {
     test("User create new again", async () => {
         const response = await request(app).post('/user/new').send(testUser);
         expect(response.body.result).toBeFalsy();
+    });
+
+    test("Creator user without seed", async () => {
+        let response = await request(app).post('/user/new').send(withoutSeedUser);
+        expect(response.body.result).toBeTruthy();
+        expect(response.body.data.mnemonic).toBeDefined();
+        expect(response.body.data.mnemonic.split(' ')).toHaveLength(12);
+        expect(response.body.data.address).toHaveLength(42)
     });
 });
 

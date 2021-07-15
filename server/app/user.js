@@ -18,11 +18,11 @@ module.exports = function (app) {
     });
 
     app.post('/user/new', async (req, res) => {
-        const {username, password, mnemonic} = req.body;
-        if (username && password && mnemonic) {
+        const {username, password, mnemonic = ''} = req.body;
+        if (username && password) {
             const response = await fairOS.userSignup(username, password, mnemonic);
             if (response.address) {
-                okResult(res);
+                okResult(res, response);
             } else {
                 errorResult(res, 'Can\'t signup with credentials');
             }
