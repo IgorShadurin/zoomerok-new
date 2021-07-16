@@ -24,7 +24,9 @@ export default class Api {
       sendData = {...sendData, ...{username: this.username, password: this.password}}
     }
 
-    return fetch(`${this.serverUrl}/${method}`, {
+    const url = `${this.serverUrl}/${method}`;
+    console.log(`${url}`);
+    return fetch(url, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -40,9 +42,8 @@ export default class Api {
     this.password = password;
   }
 
-  async login() {
-    const data = await this.postJson('user/login');
-    return data.result;
+  login() {
+    return this.postJson('user/login');
   }
 
   register(username, password, mnemonic = '') {
@@ -53,7 +54,7 @@ export default class Api {
     return this.postJson('feed/friend/get-videos');
   }
 
-  getStaticVideo(/*podOwnerAddress, */pod, name) {
+  getStaticVideoUrl(/*podOwnerAddress, */pod, name) {
     // return `${this.staticUrl}/${podOwnerAddress}/${pod}/${name}`;
     return `${this.staticUrl}/${pod}/${name}`;
   }

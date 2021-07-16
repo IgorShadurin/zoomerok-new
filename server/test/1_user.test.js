@@ -27,7 +27,7 @@ describe("User test / create new", () => {
         expect(response.body.result).toBeFalsy();
     });
 
-    test("Creator user without seed", async () => {
+    test("Create user without seed", async () => {
         let response = await request(app).post('/user/new').send(withoutSeedUser);
         expect(response.body.result).toBeTruthy();
         expect(response.body.data.mnemonic).toBeDefined();

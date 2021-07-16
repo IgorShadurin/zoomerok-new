@@ -23,3 +23,5 @@ module.exports.withoutSeedUser = {
     username: 'noseeduser0',
     password: 'noseeduser0'
 };
+
+module.exports.videoDescription1 = 'Hello world!';

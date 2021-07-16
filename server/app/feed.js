@@ -123,7 +123,7 @@ module.exports = function (app) {
                     const currentPod = filtered[i];
                     await fairOS.podOpen(currentPod, password);
                     let files = await fairOS.dirLs(currentPod);
-                    const entries = (files.entries ? files.entries.sort().reverse() : []).slice(0, maxItemsFromUser);
+                    const entries = (files.entries ? files.entries.filter(item => item.name.endsWith('.mp4')).sort().reverse() : []).slice(0, maxItemsFromUser);
                     // const key = getRedisPodOwnerKey(currentPod);
                     // console.log('redis get key', key);
                     // let address = await client.get(key);
@@ -132,10 +132,22 @@ module.exports = function (app) {
                     //     // todo get data from fairos & cache it
                     //     throw new Error("Address not received");
                     // }
+                    const nameDescription = {};
+                    for (let item of entries) {
+                        let info = await fairOS.fileDownload(currentPod, `${item.name}.json`);
+                        // todo check is json for cases whe user uploaded video manually
+                        if (info) {
+                            info = JSON.parse(info);
+                            nameDescription[item.name] = info;
+                        } else {
+                            nameDescription[item.name] = {};
+                        }
+                    }
 
                     entries.forEach(item => result.push({
                         pod: currentPod,
                         name: item.name,
+                        ...nameDescription[item.name]
                         // address
                     }));
                 }
@@ -159,8 +171,27 @@ module.exports = function (app) {
             let result = [];
             await fairOS.podOpen(pod, password);
             let files = await fairOS.dirLs(pod);
-            const entries = (files.entries ? files.entries.sort().reverse() : []).slice(0, maxItemsFromUser);
-            entries.forEach(item => result.push({pod: pod, name: item.name}));
+            const entries = (files.entries ? files.entries.filter(item => item.name.endsWith('.mp4')).sort().reverse() : [])
+                .slice(0, maxItemsFromUser);
+
+            const nameDescription = {};
+            for (let item of entries) {
+                let info = await fairOS.fileDownload(pod, `${item.name}.json`);
+                // todo check is json for cases whe user uploaded video manually
+                if (info) {
+                    info = JSON.parse(info);
+                    nameDescription[item.name] = info;
+                } else {
+                    nameDescription[item.name] = {};
+                }
+            }
+
+            // todo implement paginator for videos?
+            entries.forEach(item => result.push({
+                pod: pod,
+                name: item.name,
+                ...nameDescription[item.name]
+            }));
 
             okResult(res, result);
         } else {
@@ -190,9 +221,10 @@ module.exports = function (app) {
     app.post('/feed/friend/upload', upload.fields([
         {name: 'video', maxCount: 1},
         {name: 'username'},
-        {name: 'password'}
+        {name: 'password'},
+        {name: 'description'}
     ]), async (req, res) => {
-        const {username, password} = req.body;
+        const {username, password, description} = req.body;
 
         const maxMb = 100;
         const video = req.files.video[0];
@@ -202,7 +234,7 @@ module.exports = function (app) {
             return;
         }
 
-        if (username && password) {
+        if (username && password && description) {
             await fairOS.userLogin(username, password);
             // const userInfo = await fairOS.userStat();
             const list = await fairOS.podLs();
@@ -215,12 +247,20 @@ module.exports = function (app) {
 
             const pod = filtered[0];
             await fairOS.podOpen(pod, password);
-            const response = await fairOS.fileUpload(video.buffer, getNewVideoFileName(), pod);
+            const videoFileName = getNewVideoFileName();
+            const videoDescriptionFileName = `${videoFileName}.json`;
+
+            const response = await fairOS.fileUpload(video.buffer, videoFileName, pod);
             const fileName = response?.References[0]?.file_name;
             const reference = response?.References[0]?.reference;
             if (reference) {
                 // saveVideoToStatic(userInfo.reference, pod, fileName, video.buffer);
                 saveVideoToStatic(pod, fileName, video.buffer);
+                await fairOS.fileUpload(JSON.stringify({
+                    username,
+                    description
+                }), videoDescriptionFileName, pod);
+
                 okResult(res, {reference, name: fileName});
             } else {
                 errorResult(res, 'File not uploaded');

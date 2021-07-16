@@ -191,6 +191,7 @@ const Me: React.FC = ({user, onLogin, onLogout, onRegister, onMnemonicRecorded})
             {user.message && <AuthError>{user.message}</AuthError>}
 
             <TextInput
+              autoCapitalize='none'
               editable={!isAction}
               style={styles.input}
               onChangeText={setUsername}

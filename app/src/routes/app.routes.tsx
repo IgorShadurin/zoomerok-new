@@ -35,27 +35,26 @@ const AppRoutes: React.FC = () => {
   const api = getApi();
 
   useEffect(() => {
-    // todo load username/password from storage to object and open feed page
-    async function getVideos() {
-      let videos = (await api.getVideos()).data;
-      videos = (videos.splice(0, 3)).map((item, i) => ({
-        uri: api.getStaticVideo(item.pod, item.name),
-        username: 'user' + i,
-        text: 'Hello world',
-        tags: '#test #test',
-        music: 'Some music'
-      }));
-      console.log(videos);
-      setFeedVideos(videos);
-    }
-
     api.setServerUrl(settings.serverUrl);
     api.setStaticUrl(settings.staticUrl);
-    api.setCredentials('admin', 'admin');
-    getVideos().then(() => {
-
-    });
+    // todo load username/password from storage to object and open feed page
+    // todo is login ok -  updateVideos();
+    // todo check case with VERY MUCH videos in the feed. How to manage memory leaks?
   }, []);
+
+  async function updateVideos() {
+    let videos = (await api.getVideos()).data;
+    console.log(videos);
+
+    videos = videos.map((item, i) => ({
+      uri: api.getStaticVideoUrl(item.pod, item.name),
+      username: item.username,
+      text: item.description,
+      tags: '',
+      music: ''
+    }));
+    setFeedVideos(videos);
+  }
 
   async function onRegister(username, password, mnemonic = '') {
     setUser(data => ({...data, isRegister: true, message: null}));
@@ -70,20 +69,24 @@ const AppRoutes: React.FC = () => {
         password,
         mnemonic: mnemonic ? mnemonic : response.data.mnemonic,
       }));
+      await updateVideos();
     } else {
       api.setCredentials('', '');
       setUser(data => ({...data, isRegister: false, message: 'User exists or incorrect data'}));
     }
-    // todo show seed phrase
   }
 
   async function onLogin(username, password) {
     setUser(data => ({...data, isLogin: true, message: null}));
     api.setCredentials(username, password);
-    if (await api.login()) {
+    if ((await api.login()).result) {
+      console.log('login ok');
       // todo store credentials to storage
       setUser(data => ({...data, isLogin: false, username, password}));
+      await updateVideos();
     } else {
+      console.log('login not ok');
+
       api.setCredentials('', '');
       setUser(data => ({...data, isLogin: false, message: 'Incorrect login or password'}));
     }
@@ -187,7 +190,8 @@ const AppRoutes: React.FC = () => {
           ),
         }}
       >
-        {() => <Me user={user} onLogin={onLogin} onLogout={onLogout} onRegister={onRegister} onMnemonicRecorded={onMnemonicRecorded}/>}
+        {() => <Me user={user} onLogin={onLogin} onLogout={onLogout} onRegister={onRegister}
+                   onMnemonicRecorded={onMnemonicRecorded}/>}
       </Tab.Screen>
     </Tab.Navigator>
   );

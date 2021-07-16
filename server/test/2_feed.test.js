@@ -1,8 +1,7 @@
 const request = require("supertest");
 const fs = require("fs");
 const app = require("../app/app");
-const {testUser} = require("./shared");
-const {feedOwnerUser} = require("./shared");
+const {testUser, videoDescription1, feedOwnerUser} = require("./shared");
 
 describe("Feed test", () => {
     let defaultFeedReference = '';
@@ -154,11 +153,15 @@ describe("Feed test", () => {
     });
 
     test("Upload videos to creator's feed", async () => {
+        const video1 = './content/1.mp4';
+        const video2 = './test/content/1.mp4';
+        // different paths for different ways of testing
+        const video = fs.existsSync(video1) ? video1 : video2;
         let response = await request(app).post('/feed/friend/upload')
             .field('username', feedOwnerUser.username)
             .field('password', feedOwnerUser.password)
-            .attach('video', './content/1.mp4');
-        // .attach('video', './test/content/1.mp4');
+            .field('description', videoDescription1)
+            .attach('video', video);
         expect(response.body.result).toBeTruthy();
         expect(response.body.data.reference).toHaveLength(128);
         expect(response.body.data.name).toBeDefined();
@@ -176,6 +179,8 @@ describe("Feed test", () => {
             ...testUser
         });
         expect(response.body.data).toHaveLength(1);
+        expect(response.body.data[0].description).toEqual(videoDescription1);
+        expect(response.body.data[0].username).toEqual(feedOwnerUser.username);
     });
 
     test("Upload more videos to creator's feed", async () => {
@@ -193,12 +198,14 @@ describe("Feed test", () => {
         const podName = response.body.data;
 
         for (let i = 2; i <= 11; i++) {
+            const description = `Description ${i}`;
             const fileName = `./content/${i}.mp4`;
             // const fileName = `./test/content/${i}.mp4`;
             const originalFileSize = fs.statSync(fileName).size;
             response = await request(app).post('/feed/friend/upload')
                 .field('username', feedOwnerUser.username)
                 .field('password', feedOwnerUser.password)
+                .field('description', description)
                 .attach('video', fileName);
             expect(response.body.result).toBeTruthy();
             expect(response.body.data.reference).toHaveLength(128);
@@ -223,6 +230,12 @@ describe("Feed test", () => {
             ...feedOwnerUser
         });
         expect(response.body.data).toHaveLength(11);
+        let itemId = 0;
+        for (let i = 11; i >= 2; i--) {
+            expect(response.body.data[itemId].description).toEqual(`Description ${i}`);
+            expect(response.body.data[itemId].username).toBeDefined();
+            itemId++;
+        }
     });
 
     test("Check is new videos appears in other user account", async () => {
