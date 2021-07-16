@@ -1,7 +1,19 @@
 const request = require("supertest");
+const fetch = require("node-fetch");
 const fs = require("fs");
 const app = require("../app/app");
 const {testUser, videoDescription1, feedOwnerUser} = require("./shared");
+
+function binaryParser(res, callback) {
+    res.setEncoding('binary');
+    res.data = '';
+    res.on('data', function (chunk) {
+        res.data += chunk;
+    });
+    res.on('end', function () {
+        callback(null, new Buffer(res.data, 'binary'));
+    });
+}
 
 describe("Feed test", () => {
     let defaultFeedReference = '';
@@ -199,8 +211,9 @@ describe("Feed test", () => {
 
         for (let i = 2; i <= 11; i++) {
             const description = `Description ${i}`;
-            const fileName = `./content/${i}.mp4`;
-            // const fileName = `./test/content/${i}.mp4`;
+            const fileName1 = `./content/${i}.mp4`;
+            const fileName2 = `./test/content/${i}.mp4`;
+            const fileName = fs.existsSync(fileName1) ? fileName1 : fileName2;
             const originalFileSize = fs.statSync(fileName).size;
             response = await request(app).post('/feed/friend/upload')
                 .field('username', feedOwnerUser.username)
@@ -210,17 +223,15 @@ describe("Feed test", () => {
             expect(response.body.result).toBeTruthy();
             expect(response.body.data.reference).toHaveLength(128);
             expect(response.body.data.name).toBeDefined();
-            const currentFileName = response.body.data.name;
 
-            // todo get video file from static server
-            // if (checkedFiles < checkMaxFiles) {
-            //     // validate is correct file size after download
-            //     response = await request(app).get(`/feed/friend/get-video?pod=${podName}&name=${currentFileName}&username=${feedOwnerUser.username}&password=${feedOwnerUser.password}`)
-            //         .buffer()
-            //         .parse(binaryParser);
-            //     expect(response.body.length).toEqual(originalFileSize);
-            //     checkedFiles++;
-            // }
+            const currentFileName = response.body.data.name;
+            if (checkedFiles < checkMaxFiles) {
+                const url = `http://localhost/video/${podName}/${currentFileName}`;
+                response = await fetch(url);
+                response = await response.buffer();
+                expect(response.length).toEqual(originalFileSize);
+                checkedFiles++;
+            }
         }
 
     }, 60000);
