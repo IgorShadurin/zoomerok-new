@@ -76,6 +76,8 @@ const AppRoutes: React.FC = () => {
   }
 
   async function onRegister(username, password, mnemonic = '') {
+    setFeedVideos([]);
+    setCurrentUserVideos(null);
     setUser(data => ({...data, isRegister: true, message: null}));
     const response = await api.register(username, password, mnemonic);
     if (response.result) {
@@ -97,6 +99,8 @@ const AppRoutes: React.FC = () => {
   }
 
   async function onLogin(username, password) {
+    setFeedVideos([]);
+    setCurrentUserVideos(null);
     setUser(data => ({...data, isLogin: true, message: null}));
     api.setCredentials(username, password);
     if ((await api.login()).result) {

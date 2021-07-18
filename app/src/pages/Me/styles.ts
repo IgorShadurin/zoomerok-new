@@ -35,8 +35,13 @@ export const Avatar = styled.Image`
   height: 140px;
 `;
 
-export const Username = styled.Text`
+export const AuthTitle = styled.Text`
   font-size: 18px;
+  padding: 10px;
+`;
+
+export const Username = styled.Text`
+  font-size: 35px;
   padding: 10px;
 `;
 

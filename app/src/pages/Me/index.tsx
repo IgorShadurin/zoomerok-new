@@ -1,5 +1,16 @@
 import React from 'react';
-import {ScrollView, SafeAreaView, StyleSheet, TextInput, Button, View, Alert, Text, Image} from 'react-native';
+import {
+  ScrollView,
+  SafeAreaView,
+  StyleSheet,
+  TextInput,
+  Button,
+  View,
+  Alert,
+  Text,
+  Image,
+  TouchableOpacity
+} from 'react-native';
 import {MaterialIcons, AntDesign, FontAwesome} from '@expo/vector-icons';
 
 import avatar from '../../assets/avatar.png';
@@ -19,7 +30,7 @@ import {
   ProfileColumn,
   ProfileEdit,
   ProfileText,
-  Bookmark, AuthError, MnemonicWarning, MnemonicItem,
+  Bookmark, AuthError, MnemonicWarning, MnemonicItem, AuthTitle,
 } from './styles';
 
 const Me: React.FC = ({user, onLogin, onLogout, onRegister, onMnemonicRecorded, videos}) => {
@@ -109,7 +120,7 @@ const Me: React.FC = ({user, onLogin, onLogout, onRegister, onMnemonicRecorded, 
       <SafeAreaView>
         <ScrollView>
           {(user.username && !!user.mnemonic) && <Content>
-            <Username>Mnemonic phrase</Username>
+            <AuthTitle>Mnemonic phrase</AuthTitle>
             <MnemonicWarning>Mnemonic phrase is the only way to recover your account. Please write these words to paper
               or
               other safe place.</MnemonicWarning>
@@ -160,14 +171,34 @@ const Me: React.FC = ({user, onLogin, onLogout, onRegister, onMnemonicRecorded, 
           </Content>}
 
           {(user.username && !user.mnemonic) && <Content>
-            <Avatar source={avatar}/>
+            {/*<Avatar source={avatar}/>*/}
+
             <Username>@{user.username}</Username>
-            <Button
-              title="Logout"
-              onPress={showLogoutAlert}/>
+
+            <TouchableOpacity onPress={showLogoutAlert}
+                              style={{
+                                position: 'absolute',
+                                right: 13,
+                                top: 22
+                              }}>
+              <FontAwesome
+                name="sign-out"
+                size={24}
+                color="black"
+              />
+            </TouchableOpacity>
+
+            {/*<Button*/}
+            {/*  title="Logout"*/}
+            {/*  onPress={showLogoutAlert}/>*/}
+
+            <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 30}}>
+              <View style={{flex: 1, height: 1, backgroundColor: 'lightgrey'}}/>
+            </View>
 
             <View style={{
               // padding: 10,
+              marginTop: 40,
               flex: 1,
               flexDirection: "row",
               flexWrap: "wrap",
@@ -175,7 +206,9 @@ const Me: React.FC = ({user, onLogin, onLogout, onRegister, onMnemonicRecorded, 
               justifyContent: 'center',
               // alignContent: "space-around"
             }}>
-              {videos.map((item, i) =>
+              {!videos && <Text>Loading...</Text>}
+
+              {videos && videos.map((item, i) =>
                 <Image
                   key={i}
                   style={styles.box}
@@ -296,8 +329,8 @@ const Me: React.FC = ({user, onLogin, onLogout, onRegister, onMnemonicRecorded, 
             {/*<StatsText>Tap to add bio</StatsText>*/}
           </Content>}
           {!user.username && <Content>
-            <Username>{isRegistrationForm ? 'Registration' : 'Authentication'}</Username>
-            <Username>{user.isLogin ? 'Processing...' : 'Enter your credentials'}</Username>
+            <AuthTitle>{isRegistrationForm ? 'Registration' : 'Authentication'}</AuthTitle>
+            <AuthTitle>{user.isLogin ? 'Processing...' : 'Enter your credentials'}</AuthTitle>
             {user.message && <AuthError>{user.message}</AuthError>}
 
             <TextInput
