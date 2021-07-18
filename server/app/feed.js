@@ -16,6 +16,9 @@ const fs = require('fs');
 const upload = multer();
 // const asyncRedis = require("async-redis");
 // const client = asyncRedis.createClient();
+const util = require('util');
+const exec = util.promisify(require('child_process').exec);
+const tmp = require('tmp');
 
 module.exports = function (app) {
     // get user combined feed
@@ -32,6 +35,17 @@ module.exports = function (app) {
     //     await client.set(redisKey, owner.toLowerCase());
     // }
 
+    async function createPublicPod(username, password) {
+        let name = getFriendFeedName();
+        const address = (await fairOS.userStat()).reference;
+        await fairOS.podNew(name, password);
+        await fairOS.userLogin(username, password);
+        const sharedResult = await fairOS.podShare(name, password);
+        const reference = sharedResult.pod_sharing_reference;
+
+        return {name, reference};
+    }
+
     app.post('/feed/friend/init', async (req, res) => {
         const {username, password} = req.body;
 
@@ -39,21 +53,11 @@ module.exports = function (app) {
             await fairOS.userLogin(username, password);
             const list = await fairOS.podLs();
             const pod = list?.pod_name.find(item => item.startsWith(friendNamePrefix));
-            let created = false;
-            let name = '';
-            let reference = '';
             if (pod) {
                 errorResult(res, 'Already added');
             } else {
-                name = getFriendFeedName();
-                const address = (await fairOS.userStat()).reference;
-                await fairOS.podNew(name, password);
-                await fairOS.userLogin(username, password);
-                const sharedResult = await fairOS.podShare(name, password);
-                reference = sharedResult.pod_sharing_reference;
-                created = true;
-                // await cachePodOwner(name, address);
-                okResult(res, {created, name, reference});
+                const {name, reference} = await createPublicPod(username, password);
+                okResult(res, {name, reference});
             }
         } else {
             errorResult(res, 'Some params missed');
@@ -228,34 +232,63 @@ module.exports = function (app) {
 
         const maxMb = 100;
         const video = req.files.video[0];
+        let videoBuffer = video.buffer;
+        // console.log('req.files', req.files);
         if (video.size > maxMb * 1024 * 1024) {
             errorResult(res, `File too big. Max size is ${maxMb} Mb`);
 
             return;
         }
 
-        if (username && password && description) {
-            await fairOS.userLogin(username, password);
-            // const userInfo = await fairOS.userStat();
-            const list = await fairOS.podLs();
-            const filtered = list?.pod_name.filter(item => item.startsWith(friendNamePrefix));
-            if (filtered.length === 0) {
-                errorResult(res, 'Public feed not found');
+        let tmpVideoPath = '';
+        let tmpOutputPath = '';
+        if (video.mimetype.indexOf('quicktime') !== -1) {
+            tmpVideoPath = tmp.tmpNameSync();
+            tmpOutputPath = `${tmpVideoPath}.mp4`
+            fs.writeFileSync(tmpVideoPath, video.buffer);
+            const cmd = `ffmpeg -i "${tmpVideoPath}" "${tmpOutputPath}"`;
+            await exec(cmd);
+            fs.unlinkSync(tmpVideoPath);
+            if (!fs.existsSync(tmpOutputPath)) {
+                errorResult(res, `Can't convert video file to mp4. Output file not found`);
 
                 return;
             }
 
-            const pod = filtered[0];
+            videoBuffer = fs.readFileSync(tmpOutputPath);
+        }
+
+        if (username && password && description) {
+            await fairOS.userLogin(username, password);
+            // const userInfo = await fairOS.userStat();
+            let pod = '';
+            const list = await fairOS.podLs();
+            const filtered = list?.pod_name.filter(item => item.startsWith(friendNamePrefix));
+            if (filtered.length === 0) {
+                const {name} = await createPublicPod(username, password);
+                await fairOS.userLogin(username, password);
+                pod = name;
+            } else {
+                pod = filtered[0];
+            }
+
             await fairOS.podOpen(pod, password);
             const videoFileName = getNewVideoFileName();
             const videoDescriptionFileName = `${videoFileName}.json`;
 
-            const response = await fairOS.fileUpload(video.buffer, videoFileName, pod);
+            const response = await fairOS.fileUpload(videoBuffer, videoFileName, pod);
             const fileName = response?.References[0]?.file_name;
             const reference = response?.References[0]?.reference;
             if (reference) {
-                // saveVideoToStatic(userInfo.reference, pod, fileName, video.buffer);
-                saveVideoToStatic(pod, fileName, video.buffer);
+                saveVideoToStatic(pod, fileName, videoBuffer);
+                if (tmpVideoPath && fs.existsSync(tmpVideoPath)) {
+                    fs.unlinkSync(tmpVideoPath);
+                }
+
+                if (tmpOutputPath && fs.existsSync(tmpOutputPath)) {
+                    fs.unlinkSync(tmpOutputPath);
+                }
+
                 await fairOS.fileUpload(JSON.stringify({
                     username,
                     description

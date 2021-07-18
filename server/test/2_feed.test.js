@@ -126,7 +126,6 @@ describe("Feed test", () => {
             ...feedOwnerUser
         });
         expect(response.body.result).toBeTruthy();
-        expect(response.body.data.created).toBeTruthy();
         expect(response.body.data.name).toBeDefined();
         expect(response.body.data.reference).toHaveLength(128);
         user1FeedReference = response.body.data.reference;
@@ -256,6 +255,38 @@ describe("Feed test", () => {
         // 10 not 11, because feed limitation for every user
         expect(response.body.data).toHaveLength(10);
     });
+
+    test("Upload video without inited pod", async () => {
+        const i = 1;
+        const description = `Description ${i}`;
+        const fileName1 = `./content/${i}.mp4`;
+        const fileName2 = `./test/content/${i}.mp4`;
+        const fileName = fs.existsSync(fileName1) ? fileName1 : fileName2;
+        const response = await request(app).post('/feed/friend/upload')
+            .field('username', testUser.username)
+            .field('password', testUser.password)
+            .field('description', description)
+            .attach('video', fileName);
+
+        expect(response.body.result).toBeTruthy();
+        expect(response.body.data.reference).toHaveLength(128);
+        expect(response.body.data.name).toBeDefined();
+    }, 60000);
+
+    test("Upload mov file", async () => {
+        const video1 = './content/original1.mov';
+        const video2 = './test/content/original1.mov';
+        // different paths for different ways of testing
+        const video = fs.existsSync(video1) ? video1 : video2;
+        let response = await request(app).post('/feed/friend/upload')
+            .field('username', feedOwnerUser.username)
+            .field('password', feedOwnerUser.password)
+            .field('description', videoDescription1)
+            .attach('video', video);
+        expect(response.body.result).toBeTruthy();
+        expect(response.body.data.reference).toHaveLength(128);
+        expect(response.body.data.name).toBeDefined();
+    }, 60000);
 
     // test("test", async () => {
     //     let response = await request(app).post('/feed/test').send({

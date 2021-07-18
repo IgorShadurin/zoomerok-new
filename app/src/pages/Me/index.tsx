@@ -33,6 +33,7 @@ const Me: React.FC = ({user, onLogin, onLogout, onRegister, onMnemonicRecorded})
       height: 40,
       padding: 8,
       margin: 12,
+      // borderColor: 'lightgrey',
       borderWidth: 1,
     },
     buttonSecondary: {
@@ -79,7 +80,7 @@ const Me: React.FC = ({user, onLogin, onLogout, onRegister, onMnemonicRecorded})
     );
 
   const isAction = user.isRegister || user.isLogin;
-  const isEmptyInputs = username.length < 3 && password.length < 3;
+  const isEmptyInputs = username.length < 3 || password.length < 3;
   const mnemonicWords = user.mnemonic ? user.mnemonic.split(' ') : [];
 
   return (

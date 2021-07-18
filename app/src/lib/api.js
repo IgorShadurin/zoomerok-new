@@ -25,7 +25,6 @@ export default class Api {
     }
 
     const url = `${this.serverUrl}/${method}`;
-    console.log(`${url}`);
     return fetch(url, {
       method: 'POST',
       headers: {
@@ -35,6 +34,20 @@ export default class Api {
       body: JSON.stringify(sendData)
     })
       .then(data => data.json());
+  }
+
+  async postForm(method, formData, isSendLoginPassword = true) {
+    if (isSendLoginPassword) {
+      formData.append('username', this.username);
+      formData.append('password', this.password);
+    }
+
+    const url = `${this.serverUrl}/${method}`;
+    const data = await fetch(url, {
+      method: 'POST',
+      body: formData
+    });
+    return data.json();
   }
 
   setCredentials(username, password) {
@@ -57,6 +70,18 @@ export default class Api {
   getStaticVideoUrl(/*podOwnerAddress, */pod, name) {
     // return `${this.staticUrl}/${podOwnerAddress}/${pod}/${name}`;
     return `${this.staticUrl}/${pod}/${name}`;
+  }
+
+  uploadVideo(uri, description) {
+    const type = `video/mp4`;
+    const formData = new FormData();
+    formData.append('description', description);
+    formData.append('video', {
+      name: 'video',
+      type,
+      uri
+    });
+    return this.postForm('feed/friend/upload', formData);
   }
 }
 

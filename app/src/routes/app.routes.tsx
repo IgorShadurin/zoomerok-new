@@ -20,6 +20,7 @@ import Record from '../pages/Record';
 
 const Tab = createMaterialBottomTabNavigator();
 const Stack = createStackNavigator();
+const api = getApi();
 
 const AppRoutes: React.FC = () => {
   const [home, setHome] = useState(false);
@@ -32,7 +33,6 @@ const AppRoutes: React.FC = () => {
     }
   ]);
   const [user, setUser] = useState({});
-  const api = getApi();
 
   useEffect(() => {
     api.setServerUrl(settings.serverUrl);
@@ -208,8 +208,10 @@ const RootStackScreen: React.FC = () => {
       <Stack.Screen
         options={{headerShown: false}}
         name="Record"
-        component={Record}
-      />
+        // component={Record}
+      >
+        {() => <Record api={api}/>}
+      </Stack.Screen>
     </Stack.Navigator>
   );
 };
