@@ -67,8 +67,11 @@ export default class Api {
     return this.postJson('feed/friend/get-videos');
   }
 
-  getStaticVideoUrl(/*podOwnerAddress, */pod, name) {
-    // return `${this.staticUrl}/${podOwnerAddress}/${pod}/${name}`;
+  getMyVideos() {
+    return this.postJson('feed/friend/get-my-videos');
+  }
+
+  getStaticUrl(pod, name) {
     return `${this.staticUrl}/${pod}/${name}`;
   }
 

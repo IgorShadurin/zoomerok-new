@@ -1,5 +1,5 @@
 import React from 'react';
-import {ScrollView, SafeAreaView, StyleSheet, TextInput, Button, View, Alert, Text} from 'react-native';
+import {ScrollView, SafeAreaView, StyleSheet, TextInput, Button, View, Alert, Text, Image} from 'react-native';
 import {MaterialIcons, AntDesign, FontAwesome} from '@expo/vector-icons';
 
 import avatar from '../../assets/avatar.png';
@@ -22,12 +22,17 @@ import {
   Bookmark, AuthError, MnemonicWarning, MnemonicItem,
 } from './styles';
 
-const Me: React.FC = ({user, onLogin, onLogout, onRegister, onMnemonicRecorded}) => {
+const Me: React.FC = ({user, onLogin, onLogout, onRegister, onMnemonicRecorded, videos}) => {
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [isRegistrationForm, setIsRegistrationForm] = React.useState(false);
 
   const styles = StyleSheet.create({
+    box: {
+      width: 115,
+      height: 115,
+      margin: 3,
+    },
     input: {
       width: 350,
       height: 40,
@@ -152,7 +157,6 @@ const Me: React.FC = ({user, onLogin, onLogout, onRegister, onMnemonicRecorded})
             <Button
               title="Recorded!"
               onPress={onMnemonicRecorded}/>
-
           </Content>}
 
           {(user.username && !user.mnemonic) && <Content>
@@ -161,6 +165,111 @@ const Me: React.FC = ({user, onLogin, onLogout, onRegister, onMnemonicRecorded})
             <Button
               title="Logout"
               onPress={showLogoutAlert}/>
+
+            <View style={{
+              // padding: 10,
+              flex: 1,
+              flexDirection: "row",
+              flexWrap: "wrap",
+              alignItems: 'right',
+              justifyContent: 'center',
+              // alignContent: "space-around"
+            }}>
+              {videos.map((item, i) =>
+                <Image
+                  key={i}
+                  style={styles.box}
+                  source={{
+                    uri: item.previewUri,
+                  }}
+                />
+              )}
+              {/*<View*/}
+              {/*  style={[styles.box, {backgroundColor: "powderblue"}]}*/}
+              {/*/>*/}
+              {/*<View*/}
+              {/*  style={[styles.box, {backgroundColor: "skyblue"}]}*/}
+              {/*/>*/}
+              {/*<View*/}
+              {/*  style={[styles.box, {backgroundColor: "steelblue"}]}*/}
+              {/*/>*/}
+              {/*<View*/}
+              {/*  style={[styles.box, {backgroundColor: "red"}]}*/}
+              {/*/>*/}
+              {/*<View*/}
+              {/*  style={[styles.box, {backgroundColor: "orange"}]}*/}
+              {/*/>*/}
+              {/*<View*/}
+              {/*  style={[styles.box, {backgroundColor: "pink"}]}*/}
+              {/*/>*/}
+              {/*<View*/}
+              {/*  style={[styles.box, {backgroundColor: "blue"}]}*/}
+              {/*/>*/}
+              {/*<View*/}
+              {/*  style={[styles.box, {backgroundColor: "black"}]}*/}
+              {/*/>*/}
+              {/*<View*/}
+              {/*  style={[styles.box, {backgroundColor: "green"}]}*/}
+              {/*/>*/}
+              {/*<View*/}
+              {/*  style={[styles.box, {backgroundColor: "steelblue"}]}*/}
+              {/*/>*/}
+            </View>
+
+            {/*
+            <View style={{
+              flex: 1,
+              width: 300,
+              flexDirection: 'row',
+              alignItems: 'flex-start',
+              alignContent: 'flex-start',
+              flexWrap: 'wrap',
+            }}>
+              <View style={{
+                backgroundColor: 'red',
+                flex: 1,
+                width: 100,
+                height: 100,
+              }}/>
+              <View style={{
+                backgroundColor: 'blue',
+                flex: 1,
+                width: 100,
+                height: 100,
+              }}/>
+              <View style={{
+                backgroundColor: 'yellow',
+                flex: 1,
+                width: 100,
+                height: 100,
+              }}/>
+              <View style={{
+                backgroundColor: 'green',
+                flex: 1,
+                width: 100,
+                height: 100,
+              }}/>
+              <View style={{
+                backgroundColor: 'red',
+                flex: 1,
+                width: 100,
+                height: 100,
+              }}/>
+              <View style={{
+                backgroundColor: 'orange',
+                flex: 1,
+                width: 100,
+                height: 100,
+              }}/>
+              <View style={{
+                backgroundColor: 'black',
+                flex: 1,
+                width: 100,
+                height: 100,
+              }}/>
+            </View>
+            */}
+
             <Stats>
               {/*<StatsColumn>*/}
               {/*  <StatsNumber>1950</StatsNumber>*/}
