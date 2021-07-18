@@ -151,6 +151,7 @@ module.exports = function (app) {
                     entries.forEach(item => result.push({
                         pod: currentPod,
                         name: item.name,
+                        previewName: `${item.name}.jpg`,
                         ...nameDescription[item.name]
                         // address
                     }));
@@ -194,6 +195,7 @@ module.exports = function (app) {
             entries.forEach(item => result.push({
                 pod: pod,
                 name: item.name,
+                previewName: `${item.name}.jpg`,
                 ...nameDescription[item.name]
             }));
 
@@ -230,6 +232,11 @@ module.exports = function (app) {
     ]), async (req, res) => {
         const {username, password, description} = req.body;
 
+        if (!(username && password && description)) {
+            errorResult(res, 'Some params missed');
+            return;
+        }
+
         const maxMb = 100;
         const video = req.files.video[0];
         let videoBuffer = video.buffer;
@@ -240,12 +247,16 @@ module.exports = function (app) {
             return;
         }
 
-        let tmpVideoPath = '';
+        const tmpVideoPath = tmp.tmpNameSync();
+        const tmpVideoPreviewPath = `${tmpVideoPath}.jpg`;
         let tmpOutputPath = '';
+        fs.writeFileSync(tmpVideoPath, video.buffer);
+
+        const cmd = `ffmpeg -i "${tmpVideoPath}" -q:v 15 -vframes 1 "${tmpVideoPreviewPath}"`;
+        await exec(cmd);
+
         if (video.mimetype.indexOf('quicktime') !== -1) {
-            tmpVideoPath = tmp.tmpNameSync();
             tmpOutputPath = `${tmpVideoPath}.mp4`
-            fs.writeFileSync(tmpVideoPath, video.buffer);
             const cmd = `ffmpeg -i "${tmpVideoPath}" "${tmpOutputPath}"`;
             await exec(cmd);
             fs.unlinkSync(tmpVideoPath);
@@ -258,49 +269,51 @@ module.exports = function (app) {
             videoBuffer = fs.readFileSync(tmpOutputPath);
         }
 
-        if (username && password && description) {
+        await fairOS.userLogin(username, password);
+        // const userInfo = await fairOS.userStat();
+        let pod = '';
+        const list = await fairOS.podLs();
+        const filtered = list?.pod_name.filter(item => item.startsWith(friendNamePrefix));
+        if (filtered.length === 0) {
+            const {name} = await createPublicPod(username, password);
             await fairOS.userLogin(username, password);
-            // const userInfo = await fairOS.userStat();
-            let pod = '';
-            const list = await fairOS.podLs();
-            const filtered = list?.pod_name.filter(item => item.startsWith(friendNamePrefix));
-            if (filtered.length === 0) {
-                const {name} = await createPublicPod(username, password);
-                await fairOS.userLogin(username, password);
-                pod = name;
-            } else {
-                pod = filtered[0];
-            }
-
-            await fairOS.podOpen(pod, password);
-            const videoFileName = getNewVideoFileName();
-            const videoDescriptionFileName = `${videoFileName}.json`;
-
-            const response = await fairOS.fileUpload(videoBuffer, videoFileName, pod);
-            const fileName = response?.References[0]?.file_name;
-            const reference = response?.References[0]?.reference;
-            if (reference) {
-                saveVideoToStatic(pod, fileName, videoBuffer);
-                if (tmpVideoPath && fs.existsSync(tmpVideoPath)) {
-                    fs.unlinkSync(tmpVideoPath);
-                }
-
-                if (tmpOutputPath && fs.existsSync(tmpOutputPath)) {
-                    fs.unlinkSync(tmpOutputPath);
-                }
-
-                await fairOS.fileUpload(JSON.stringify({
-                    username,
-                    description
-                }), videoDescriptionFileName, pod);
-
-                okResult(res, {reference, name: fileName});
-            } else {
-                errorResult(res, 'File not uploaded');
-            }
+            pod = name;
         } else {
-            errorResult(res, 'Some params missed');
+            pod = filtered[0];
         }
+
+        await fairOS.podOpen(pod, password);
+        const videoFileName = getNewVideoFileName();
+        const videoDescriptionFileName = `${videoFileName}.json`;
+        const previewFileName = `${videoFileName}.jpg`;
+
+        const response = await fairOS.fileUpload(videoBuffer, videoFileName, pod);
+        const fileName = response?.References[0]?.file_name;
+        const reference = response?.References[0]?.reference;
+        if (reference) {
+            const previewBuffer = fs.readFileSync(tmpVideoPreviewPath);
+            saveVideoToStatic(pod, fileName, videoBuffer);
+            saveVideoToStatic(pod, previewFileName, previewBuffer);
+            // upload preview
+            await fairOS.fileUpload(previewBuffer, previewFileName, pod);
+            // upload meta
+            await fairOS.fileUpload(JSON.stringify({
+                username,
+                description
+            }), videoDescriptionFileName, pod);
+
+            // clear tmp
+            [tmpVideoPreviewPath, tmpVideoPath, tmpOutputPath].forEach(item => {
+                if (item && fs.existsSync(item)) {
+                    fs.unlinkSync(item);
+                }
+            });
+
+            okResult(res, {reference, name: fileName});
+        } else {
+            errorResult(res, 'File not uploaded');
+        }
+
     });
 
     // create feed for authors

@@ -288,6 +288,8 @@ describe("Feed test", () => {
         expect(response.body.data.name).toBeDefined();
     }, 60000);
 
+    // todo check preview uploading
+
     // test("test", async () => {
     //     let response = await request(app).post('/feed/test').send({
     //         ...testUser

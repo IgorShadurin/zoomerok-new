@@ -92,13 +92,11 @@ module.exports.getNewVideoFileName = () => {
     return `${date}.mp4`;
 };
 
-module.exports.saveVideoToStatic = (/*podOwnerAddress, */pod, name, content) => {
-    // podOwnerAddress = podOwnerAddress.toLowerCase();
+module.exports.saveVideoToStatic = (pod, name, content) => {
     pod = pod.toLowerCase();
     name = name.toLowerCase();
 
     let videoPath = process.env.APP_STATIC_VIDEO_PATH;
-    // videoPath = `${videoPath}/${podOwnerAddress}/${pod}`;
     videoPath = `${videoPath}/${pod}`;
     fs.mkdirSync(videoPath, {recursive: true});
     videoPath = `${videoPath}/${name}`;
