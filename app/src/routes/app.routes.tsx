@@ -46,7 +46,7 @@ const AppRoutes: React.FC = () => {
     let videos = (await api.getVideos()).data;
     console.log(videos);
 
-    videos = videos.map((item, i) => ({
+    videos = (videos.slice(0, 2)).map((item, i) => ({
       uri: api.getStaticVideoUrl(item.pod, item.name),
       username: item.username,
       text: item.description,
