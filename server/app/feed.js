@@ -230,9 +230,9 @@ module.exports = function (app) {
         {name: 'password'},
         {name: 'description'}
     ]), async (req, res) => {
-        const {username, password, description} = req.body;
+        const {username, password, description = ''} = req.body;
 
-        if (!(username && password && description)) {
+        if (!(username && password)) {
             errorResult(res, 'Some params missed');
             return;
         }
