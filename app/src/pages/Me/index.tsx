@@ -95,7 +95,7 @@ const Me: React.FC = ({user, onLogin, onLogout, onRegister, onMnemonicRecorded, 
       }
     );
 
-  const isAction = user.isRegister || user.isLogin;
+  const isAction = user.isRegister || user.isLogin || user.isRegister;
   const isEmptyInputs = username.length < 3 || password.length < 3;
   const mnemonicWords = user.mnemonic ? user.mnemonic.split(' ') : [];
 
@@ -208,7 +208,11 @@ const Me: React.FC = ({user, onLogin, onLogout, onRegister, onMnemonicRecorded, 
             }}>
               {!videos && <Text>Loading...</Text>}
 
-              {videos && videos.map((item, i) =>
+              {(videos && !videos.length) &&
+              <Text style={{textAlign: 'center', fontSize: 15}}>The videos you recorded will be displayed here. It's
+                time to record something!</Text>}
+
+              {(videos && videos.length > 0) && videos.map((item, i) =>
                 <Image
                   key={i}
                   style={styles.box}
@@ -330,7 +334,7 @@ const Me: React.FC = ({user, onLogin, onLogout, onRegister, onMnemonicRecorded, 
           </Content>}
           {!user.username && <Content>
             <AuthTitle>{isRegistrationForm ? 'Registration' : 'Authentication'}</AuthTitle>
-            <AuthTitle>{user.isLogin ? 'Processing...' : 'Enter your credentials'}</AuthTitle>
+            <AuthTitle>{user.isLogin || user.isRegister ? 'Processing...' : 'Enter your credentials'}</AuthTitle>
             {user.message && <AuthError>{user.message}</AuthError>}
 
             <TextInput
