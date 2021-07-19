@@ -256,7 +256,7 @@ const AppRoutes: React.FC = () => {
         }}
       >
         {() => <Me videos={currentUserVideos} user={user} onLogin={onLogin} onLogout={onLogout} onRegister={onRegister}
-                   onMnemonicRecorded={onMnemonicRecorded}/>}
+                   onMnemonicRecorded={onMnemonicRecorded} api={api}/>}
       </Tab.Screen>
     </Tab.Navigator>
   );

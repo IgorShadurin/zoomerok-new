@@ -71,6 +71,10 @@ export default class Api {
     return this.postJson('feed/friend/get-my-videos');
   }
 
+  getMyReference() {
+    return this.postJson('feed/friend/get-my-reference');
+  }
+
   getStaticUrl(pod, name) {
     return `${this.staticUrl}/${pod}/${name}`;
   }

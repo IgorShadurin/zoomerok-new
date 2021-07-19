@@ -10,7 +10,8 @@ import {
   Text,
   Image,
   TouchableOpacity,
-  Dimensions
+  Dimensions,
+  Clipboard,
 } from 'react-native';
 import {MaterialIcons, AntDesign, FontAwesome} from '@expo/vector-icons';
 
@@ -34,7 +35,7 @@ import {
   Bookmark, AuthError, MnemonicWarning, MnemonicItem, AuthTitle,
 } from './styles';
 
-const Me: React.FC = ({user, onLogin, onLogout, onRegister, onMnemonicRecorded, videos}) => {
+const Me: React.FC = ({user, onLogin, onLogout, onRegister, onMnemonicRecorded, videos, api}) => {
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [isRegistrationForm, setIsRegistrationForm] = React.useState(false);
@@ -177,6 +178,35 @@ const Me: React.FC = ({user, onLogin, onLogout, onRegister, onMnemonicRecorded, 
             {/*<Avatar source={avatar}/>*/}
 
             <Username>@{user.username}</Username>
+
+            <Button title="Share profile" onPress={async () => {
+              try {
+                const reference = (await api.getMyReference()).data;
+                console.log(reference);
+                Clipboard.setString(reference);
+                Alert.alert(
+                  "Done",
+                  "Reference copied to your clipboard. Share it with other users and they could subscribe to you.",
+                  [
+                    {
+                      text: "OK",
+                      onPress: () => {
+                        console.log('cancel pressed');
+                      },
+                      style: "cancel",
+                    },
+
+                  ],
+                  {
+                    cancelable: true,
+                    onDismiss: () => console.log('onDismiss')
+                  }
+                );
+              } catch (e) {
+                console.log(e);
+              }
+            }
+            }/>
 
             <TouchableOpacity onPress={showLogoutAlert}
                               style={{
