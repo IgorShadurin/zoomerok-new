@@ -9,7 +9,8 @@ import {
   Alert,
   Text,
   Image,
-  TouchableOpacity
+  TouchableOpacity,
+  Dimensions
 } from 'react-native';
 import {MaterialIcons, AntDesign, FontAwesome} from '@expo/vector-icons';
 
@@ -38,10 +39,12 @@ const Me: React.FC = ({user, onLogin, onLogout, onRegister, onMnemonicRecorded, 
   const [password, setPassword] = React.useState('');
   const [isRegistrationForm, setIsRegistrationForm] = React.useState(false);
 
+  const window = Dimensions.get('window');
+
   const styles = StyleSheet.create({
     box: {
-      width: 115,
-      height: 115,
+      width: window.width / 3 - 13,
+      height: window.width / 3 - 13,
       margin: 3,
     },
     input: {
@@ -197,14 +200,12 @@ const Me: React.FC = ({user, onLogin, onLogout, onRegister, onMnemonicRecorded, 
             </View>
 
             <View style={{
-              // padding: 10,
               marginTop: 40,
               flex: 1,
               flexDirection: "row",
-              flexWrap: "wrap",
-              alignItems: 'right',
-              justifyContent: 'center',
-              // alignContent: "space-around"
+              flexWrap: 'wrap',
+              // justifyContent: 'center',
+
             }}>
               {!videos && <Text>Loading...</Text>}
 
