@@ -27,6 +27,7 @@ const Record: React.FC = ({api}) => {
   const [description, setDescription] = useState('');
   const [video, setVideo] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [timeoutPointer, setTimeoutPointer] = useState(null);
 
   const navigation = useNavigation();
   useEffect(() => {
@@ -129,14 +130,21 @@ const Record: React.FC = ({api}) => {
               backgroundColor: recording ? '#313447' : '#fe2b54'
             }}
             onPress={async () => {
-              console.log('Record click');
+              console.log('Record click. Is recording', recording);
               if (!recording) {
                 setRecording(true);
+                setTimeoutPointer(setTimeout(() => {
+                  cameraRef?.stopRecording();
+                }, 10000));
                 let video = await cameraRef.recordAsync();
                 setRecorded(true);
                 setVideo(video);
                 console.log('video', video);
               } else {
+                if (timeoutPointer) {
+                  clearTimeout(timeoutPointer);
+                }
+
                 setRecording(false);
                 cameraRef.stopRecording();
               }
@@ -146,6 +154,7 @@ const Record: React.FC = ({api}) => {
       }
     </>
   );
-};
+}
+;
 
 export default Record;
