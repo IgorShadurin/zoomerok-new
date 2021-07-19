@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react';
 import {StatusBar, Platform} from 'react-native';
-
 import {
   MaterialCommunityIcons,
   AntDesign,
@@ -10,13 +9,13 @@ import {createMaterialBottomTabNavigator} from '@react-navigation/material-botto
 import {createStackNavigator} from '@react-navigation/stack';
 import settings from '../settings.json';
 import {getApi} from '../lib/api';
-
 import HomeButtom from '../components/HomeButton';
 import Discover from '../pages/Discover';
 import Home from '../pages/Home';
 import Inbox from '../pages/Inbox';
 import Me from '../pages/Me';
 import Record from '../pages/Record';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Tab = createMaterialBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -34,17 +33,6 @@ const AppRoutes: React.FC = () => {
   ]);
   const [user, setUser] = useState({});
   const [currentUserVideos, setCurrentUserVideos] = useState([]);
-
-  useEffect(() => {
-    api.setServerUrl(settings.serverUrl);
-    api.setStaticUrl(settings.staticUrl);
-
-    // todo get my videos and pass it ot profile info
-
-    // todo load username/password from storage to object and open feed page
-    // todo is login ok -  updateVideos();
-    // todo check case with VERY MUCH videos in the feed. How to manage memory leaks?
-  }, []);
 
   async function updateFeedVideos() {
     let videos = (await api.getVideos()).data;
@@ -75,26 +63,74 @@ const AppRoutes: React.FC = () => {
     setCurrentUserVideos(videos);
   }
 
+  async function saveCredentials(username = '', password = '') {
+    try {
+      await AsyncStorage.setItem('username', username);
+      await AsyncStorage.setItem('password', password);
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  async function getCredentials() {
+    const username = await AsyncStorage.getItem('username');
+    const password = await AsyncStorage.getItem('password');
+    return {username, password};
+  }
+
+  useEffect(() => {
+    api.setServerUrl(settings.serverUrl);
+    api.setStaticUrl(settings.staticUrl);
+
+    async function authRecover() {
+      const {username, password} = await getCredentials();
+      if (username && password) {
+        api.setCredentials(username, password);
+        try {
+          setUser(data => ({...data, isLogin: true, message: null}));
+          if ((await api.login()).result) {
+            setFeedVideos([]);
+            setCurrentUserVideos(null);
+            setUser(data => ({...data, isLogin: false, username, password}));
+            await updateFeedVideos();
+            await updateUserVideos();
+          }
+        } catch (e) {
+          api.setCredentials('', '');
+        }
+      }
+    }
+
+    authRecover().then();
+
+    // todo check case with VERY MUCH videos in the feed. How to manage memory leaks?
+  }, []);
+
   async function onRegister(username, password, mnemonic = '') {
     setFeedVideos([]);
     setCurrentUserVideos(null);
     setUser(data => ({...data, isRegister: true, message: null}));
-    const response = await api.register(username, password, mnemonic);
-    if (response.result) {
-      // todo store credentials to storage
-      api.setCredentials(username, password);
-      setUser(data => ({
-        ...data,
-        isRegister: false,
-        username,
-        password,
-        mnemonic: mnemonic ? mnemonic : response.data.mnemonic,
-      }));
-      await updateFeedVideos();
-      await updateUserVideos();
-    } else {
+    try {
+      const response = await api.register(username, password, mnemonic);
+      if (response.result) {
+        await saveCredentials(username, password);
+        api.setCredentials(username, password);
+        setUser(data => ({
+          ...data,
+          isRegister: false,
+          username,
+          password,
+          mnemonic: mnemonic ? mnemonic : response.data.mnemonic,
+        }));
+        await updateFeedVideos();
+        await updateUserVideos();
+      } else {
+        api.setCredentials('', '');
+        setUser(data => ({...data, isRegister: false, message: 'User exists or incorrect data'}));
+      }
+    } catch (e) {
       api.setCredentials('', '');
-      setUser(data => ({...data, isRegister: false, message: 'User exists or incorrect data'}));
+      setUser(data => ({...data, isRegister: false, message: `Can't connect to server`}));
     }
   }
 
@@ -102,18 +138,22 @@ const AppRoutes: React.FC = () => {
     setFeedVideos([]);
     setCurrentUserVideos(null);
     setUser(data => ({...data, isLogin: true, message: null}));
-    api.setCredentials(username, password);
-    if ((await api.login()).result) {
-      console.log('login ok');
-      // todo store credentials to storage
-      setUser(data => ({...data, isLogin: false, username, password}));
-      await updateFeedVideos();
-      await updateUserVideos();
-    } else {
-      console.log('login not ok');
+    try {
+      api.setCredentials(username, password);
+      if ((await api.login()).result) {
+        await saveCredentials(username, password);
+        setUser(data => ({...data, isLogin: false, username, password}));
+        await updateFeedVideos();
+        await updateUserVideos();
+      } else {
+        console.log('login not ok');
 
+        api.setCredentials('', '');
+        setUser(data => ({...data, isLogin: false, message: 'Incorrect login or password'}));
+      }
+    } catch (e) {
       api.setCredentials('', '');
-      setUser(data => ({...data, isLogin: false, message: 'Incorrect login or password'}));
+      setUser(data => ({...data, isLogin: false, message: `Can't connect to server`}));
     }
   }
 

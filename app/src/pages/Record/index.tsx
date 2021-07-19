@@ -77,6 +77,7 @@ const Record: React.FC = ({api}) => {
               if (video) {
                 setUploading(true);
                 const data = await api.uploadVideo(video.uri, description);
+                setUploading(false);
                 console.log('uploaded', data);
                 // todo open my profile with videos
               }
