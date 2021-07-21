@@ -21,6 +21,7 @@ const exec = util.promisify(require('child_process').exec);
 const tmp = require('tmp');
 
 module.exports = function (app) {
+    // todo add try/catch for all methods with logging errors
     // get user combined feed
     // app.get('/feed', async (req, res) => {
     //     const {password} = req.body;
