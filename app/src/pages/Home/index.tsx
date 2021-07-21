@@ -61,8 +61,8 @@ const Home: React.FC = ({feedVideos, isHidden}) => {
   //
   // ));
 
-  let views = null;
-  if (feedVideos) {
+  let views;
+  if (feedVideos && feedVideos.length > 0) {
     views = feedVideos.map((item, i) => (
       <View key={i}>
         <Feed item={item}
@@ -71,8 +71,29 @@ const Home: React.FC = ({feedVideos, isHidden}) => {
               addRef={(ref) => addRef(i, ref)}/>
       </View>
     ));
+  } else if (feedVideos && feedVideos.length === 0) {
+    views = <View style={{
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}>
+      <Text>
+        No videos in your feed.
+      </Text>
+      <Text>
+        Let's subscribe to somebody!
+      </Text>
+    </View>;
   } else {
-    views = <View key={0}><Text style={{position: 'absolute', top: '50%', left: '40%'}}>Loading...</Text></View>;
+    views = <View style={{
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}>
+      <Text>
+        Loading...
+      </Text>
+    </View>;
   }
 
   return (
