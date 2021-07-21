@@ -248,9 +248,9 @@ const AppRoutes: React.FC = () => {
         name="Me"
         // component={Me}
         listeners={() => ({
-          tabPress: async () => {
+          tabPress: () => {
             console.log('tabPress');
-            await updateUserVideos();
+            updateUserVideos().then();
           },
         })}
         options={{

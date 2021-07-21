@@ -11,12 +11,8 @@ import {Container, Header, Text, Tab, Separator} from './styles';
 import {PagerViewOnPageSelectedEventData} from "react-native-pager-view/src/types";
 
 const Home: React.FC = ({feedVideos, isHidden}) => {
-  // const [tab, setTab] = useState(1);
-  // const [active, setActive] = useState(0);
-  // const [videoCache, setVideoCache] = useState({});
-  // const [videoRefs, setVideoRefs] = useState({});
   const [pagerCreated, setPagerCreated] = useState(false);
-  // const [currentPosition, setCurrentPosition] = useState(0);
+  const [currentPosition, setCurrentPosition] = useState(0);
   let refs = useRef({});
   const [isIdHidden, setIsIdHidden] = useState({});
 
@@ -31,42 +27,16 @@ const Home: React.FC = ({feedVideos, isHidden}) => {
   }, [feedVideos]);
 
   console.log('isIdHidden', isIdHidden);
-  // console.log('videoRefs', videoRefs);
   const addRef = (index, ref) => {
-    // console.log('new ref', index);
-    // setVideoRefs(data => ({...data, [index]: ref}));
     refs = {...refs, [index]: ref};
   };
-
-  // console.log('HOME feedVideos', feedVideos);
-  // console.log('HOME isHidden', isHidden);
-  // feedVideos.forEach((item) => {
-  //   if (videoCache[item.uri]) {
-  //     return;
-  //   }
-  //
-  //   console.log('CACHE NEW',item.uri);
-  //   setVideoCache(data => ({
-  //     ...data, [item.uri]: <View key={item.uri}>
-  //       <Feed item={item} play={false}/>
-  //     </View>
-  //   }));
-  // });
-
-  // const views = feedVideos.map((item, i) => (
-  //   <View key={i}>
-  //     <Feed item={item} play={true} isHidden={isHidden} addRef={addRef}/>
-  //   </View>
-  //   // videoCache[item.uri]
-  //
-  // ));
 
   let views;
   if (feedVideos && feedVideos.length > 0) {
     views = feedVideos.map((item, i) => (
       <View key={i}>
         <Feed item={item}
-              play={false}
+              play={i === currentPosition}
               isHidden={isHidden || isIdHidden[i]}
               addRef={(ref) => addRef(i, ref)}/>
       </View>
@@ -111,6 +81,8 @@ const Home: React.FC = ({feedVideos, isHidden}) => {
       <PagerView ref={() => setPagerCreated(true)}
                  onPageSelected={data => {
                    const pos = data.nativeEvent.position;
+                   setCurrentPosition(pos);
+
 
                    console.log('onPageSelected', data.nativeEvent.position, !!refs[pos])
                    setIsIdHidden(oldItems => {
@@ -128,7 +100,6 @@ const Home: React.FC = ({feedVideos, isHidden}) => {
                    refs[pos]?.playAsync();
                    refs[pos + 1]?.stopAsync();
                    refs[pos + 2]?.stopAsync();
-                   //     setCurrentPosition(data.nativeEvent.position);
                  }
                  }
                  style={{flex: 1,}}
