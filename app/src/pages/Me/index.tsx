@@ -36,7 +36,7 @@ import {
 } from './styles';
 import {useNavigation} from "@react-navigation/native";
 
-const Me: React.FC = ({ user, onLogin, onLogout, onRegister, onMnemonicRecorded, videos, api}) => {
+const Me: React.FC = ({user, onLogin, onLogout, onRegister, onMnemonicRecorded, videos, api}) => {
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [isRegistrationForm, setIsRegistrationForm] = React.useState(false);
@@ -266,13 +266,23 @@ const Me: React.FC = ({ user, onLogin, onLogout, onRegister, onMnemonicRecorded,
               {!videos && <Text>Loading...</Text>}
 
               {(videos && !videos.length) &&
-              <Text key={0} style={{textAlign: 'center', fontSize: 15}}>The videos you recorded will be displayed here. It's
-                time to record something!</Text>}
+              <View style={{
+                flex: 1,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                <Text style={{fontSize: 15}}>
+                  The videos you recorded will be displayed here.
+                </Text>
+                <Text style={{fontSize: 15}}>
+                  It's time to record something!
+                </Text>
+              </View>}
 
               {(videos && videos.length > 0) && videos.map((item, i) =>
                 <TouchableOpacity key={i} onPress={() => {
                   console.log('img video click');
-                  navigation.navigate('Player', {uri:item.uri});
+                  navigation.navigate('Player', {uri: item.uri});
 
                 }
                 }>

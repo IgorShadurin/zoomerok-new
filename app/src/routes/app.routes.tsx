@@ -44,6 +44,7 @@ const AppRoutes: React.FC = () => {
   }
 
   async function updateUserVideos(user = 'me') {
+    setCurrentUserVideos(null);
     let videos = (await api.getMyVideos()).data;
     // console.log('getMyVideos', videos);
 
@@ -186,10 +187,11 @@ const AppRoutes: React.FC = () => {
       {(user.username && !user.mnemonic) && <Tab.Screen
         name="Home"
         listeners={{
+          tabPress: async () => {
+            await updateFeedVideos();
+          },
           focus: async () => {
             setHome(true);
-            console.log('focus');
-            await updateFeedVideos();
           },
           blur: () => setHome(false)
         }}
@@ -245,6 +247,12 @@ const AppRoutes: React.FC = () => {
       <Tab.Screen
         name="Me"
         // component={Me}
+        listeners={() => ({
+          tabPress: async () => {
+            console.log('tabPress');
+            await updateUserVideos();
+          },
+        })}
         options={{
           tabBarLabel: 'Me',
           tabBarIcon: ({color}) => (
