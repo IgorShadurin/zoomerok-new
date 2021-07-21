@@ -23,11 +23,12 @@ const api = getApi();
 
 const AppRoutes: React.FC = () => {
     const [home, setHome] = useState(false);
-    const [feedVideos, setFeedVideos] = useState([]);
+    const [feedVideos, setFeedVideos] = useState(null);
     const [user, setUser] = useState({});
     const [currentUserVideos, setCurrentUserVideos] = useState([]);
 
     async function updateFeedVideos() {
+      setFeedVideos(null);
       let videos = (await api.getVideos()).data;
       // console.log(videos);
 
@@ -82,7 +83,7 @@ const AppRoutes: React.FC = () => {
           try {
             setUser(data => ({...data, isLogin: true, message: null}));
             if ((await api.login()).result) {
-              setFeedVideos([]);
+              setFeedVideos(null);
               setCurrentUserVideos(null);
               setUser(data => ({...data, isLogin: false, username, password}));
               await updateFeedVideos();
@@ -101,7 +102,7 @@ const AppRoutes: React.FC = () => {
     }, []);
 
     async function onRegister(username, password, mnemonic = '') {
-      setFeedVideos([]);
+      setFeedVideos(null);
       setCurrentUserVideos(null);
       setUser(data => ({...data, isRegister: true, message: null}));
       try {
@@ -129,7 +130,7 @@ const AppRoutes: React.FC = () => {
     }
 
     async function onLogin(username, password) {
-      setFeedVideos([]);
+      setFeedVideos(null);
       setCurrentUserVideos(null);
       setUser(data => ({...data, isLogin: true, message: null}));
       try {
@@ -189,7 +190,7 @@ const AppRoutes: React.FC = () => {
             focus: async () => {
               setHome(true);
               console.log('focus');
-              // await updateFeedVideos();
+              await updateFeedVideos();
             },
             blur: () => setHome(false)
           }}
