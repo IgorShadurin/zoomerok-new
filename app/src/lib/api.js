@@ -63,6 +63,10 @@ export default class Api {
     return this.postJson('user/new', {username, password, mnemonic}, false);
   }
 
+  addFriend(reference) {
+    return this.postJson('feed/friend/add', {reference});
+  }
+
   getVideos() {
     return this.postJson('feed/friend/get-videos');
   }

@@ -208,6 +208,29 @@ const Me: React.FC = ({user, onLogin, onLogout, onRegister, onMnemonicRecorded, 
             }
             }/>
 
+            <TouchableOpacity onPress={() => {
+              console.log('add friend clicked');
+              Alert.prompt('User reference', 'Enter user reference', async reference => {
+                console.log('entered data', reference);
+                if (reference && reference.length === 128) {
+                  const response = await api.addFriend(reference);
+                  console.log('response', response);
+                }
+              });
+            }
+            }
+                              style={{
+                                position: 'absolute',
+                                left: 13,
+                                top: 22
+                              }}>
+              <FontAwesome
+                name="user-plus"
+                size={24}
+                color="black"
+              />
+            </TouchableOpacity>
+
             <TouchableOpacity onPress={showLogoutAlert}
                               style={{
                                 position: 'absolute',

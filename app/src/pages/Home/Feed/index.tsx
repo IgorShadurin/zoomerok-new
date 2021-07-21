@@ -36,7 +36,7 @@ interface Props {
   item: Item;
 }
 
-const Feed: React.FC<Props> = ({play, item}) => {
+const Feed: React.FC<Props> = ({play, item, isHidden,addRef}) => {
   const [isPlay, setIsPlay] = useState(play);
   const spinValue = new Animated.Value(0);
 
@@ -59,6 +59,9 @@ const Feed: React.FC<Props> = ({play, item}) => {
     setIsPlay(!isPlay);
   };
 
+  // console.log('feed item init', item);
+  console.log('feed item isHidden', isHidden);
+  // return <Text>Description {item.description}</Text>
   return (
     <>
       <TouchableWithoutFeedback onPress={onVideoClick}>
@@ -75,8 +78,9 @@ const Feed: React.FC<Props> = ({play, item}) => {
       </TouchableWithoutFeedback>
 
       <Container>
-        <Video
-          source={{uri: item.uri }}
+        {!isHidden && <Video
+          ref={addRef}
+          source={{uri: item.uri}}
           rate={1.0}
           volume={1.0}
           isMuted={false}
@@ -87,7 +91,7 @@ const Feed: React.FC<Props> = ({play, item}) => {
             width: '100%',
             height: '100%',
           }}
-        />
+        />}
       </Container>
       <Details>
         <User>@{item.username}</User>
