@@ -34,11 +34,14 @@ import {
   ProfileText,
   Bookmark, AuthError, MnemonicWarning, MnemonicItem, AuthTitle,
 } from './styles';
+import {useNavigation} from "@react-navigation/native";
 
-const Me: React.FC = ({user, onLogin, onLogout, onRegister, onMnemonicRecorded, videos, api}) => {
+const Me: React.FC = ({ user, onLogin, onLogout, onRegister, onMnemonicRecorded, videos, api}) => {
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [isRegistrationForm, setIsRegistrationForm] = React.useState(false);
+  const navigation = useNavigation();
+
 
   const window = Dimensions.get('window');
 
@@ -263,17 +266,24 @@ const Me: React.FC = ({user, onLogin, onLogout, onRegister, onMnemonicRecorded, 
               {!videos && <Text>Loading...</Text>}
 
               {(videos && !videos.length) &&
-              <Text style={{textAlign: 'center', fontSize: 15}}>The videos you recorded will be displayed here. It's
+              <Text key={0} style={{textAlign: 'center', fontSize: 15}}>The videos you recorded will be displayed here. It's
                 time to record something!</Text>}
 
               {(videos && videos.length > 0) && videos.map((item, i) =>
-                <Image
-                  key={i}
-                  style={styles.box}
-                  source={{
-                    uri: item.previewUri,
-                  }}
-                />
+                <TouchableOpacity key={i} onPress={() => {
+                  console.log('img video click');
+                  navigation.navigate('Player', {uri:item.uri});
+
+                }
+                }>
+                  <Image
+                    key={i}
+                    style={styles.box}
+                    source={{
+                      uri: item.previewUri,
+                    }}
+                  />
+                </TouchableOpacity>
               )}
               {/*<View*/}
               {/*  style={[styles.box, {backgroundColor: "powderblue"}]}*/}
