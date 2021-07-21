@@ -58,35 +58,48 @@ const Record: React.FC = ({api}) => {
       }
       }>
         <SafeAreaView>
-          <Text style={{
-            fontSize: 16,
-            paddingBottom: 20
-          }}>Enter video description</Text>
-          <TextInput
-            maxLength={100}
-            editable={true}
-            style={{fontSize: 16}}
-            onChangeText={setDescription}
-            value={description}
-            placeholder="Video description"
-          />
 
-          <Button
-            title={uploading ? 'Uploading...' : 'Upload'}
-            disabled={isUploadDisabled}
-            onPress={async () => {
-              if (video) {
-                setUploading(true);
-                const data = await api.uploadVideo(video.uri, description);
-                setUploading(false);
-                console.log('uploaded', data);
-                // todo open my profile with videos
-              }
-            }}/>
+          <View style={{margin: 10, marginTop: 30}}>
+            <Text style={{
+              textAlign: 'center',
+              fontSize: 26,
+              paddingBottom: 20
+            }}>Enter video description</Text>
+            <TextInput
+              textAlign='center'
+              maxLength={100}
+              editable={true}
+              style={{fontSize: 16}}
+              onChangeText={setDescription}
+              value={description}
+              placeholder="Video description"
+            />
 
-          <Button title="Cancel" onPress={() => {
-            setRecorded(false);
-          }}/>
+            <View style={{flexDirection: "row", marginTop: 30}}>
+              <View style={{flex: 1}}>
+                <Button
+                  title={uploading ? 'Uploading...' : 'Upload'}
+                  disabled={isUploadDisabled}
+                  onPress={async () => {
+                    if (video) {
+                      setUploading(true);
+                      const data = await api.uploadVideo(video.uri, description);
+                      setUploading(false);
+                      console.log('uploaded', data);
+                      navigation.navigate("Me", {update: true, rand: Math.random()});
+                    }
+                  }}/>
+              </View>
+              <View style={{flex: 1}}>
+                <Button
+                  title="Cancel"
+                  onPress={() => {
+                    setRecorded(false);
+                  }}/>
+              </View>
+            </View>
+          </View>
+
         </SafeAreaView>
       </Container>}
 
@@ -154,7 +167,6 @@ const Record: React.FC = ({api}) => {
       }
     </>
   );
-}
-;
+};
 
 export default Record;

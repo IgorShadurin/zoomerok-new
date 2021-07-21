@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
   ScrollView,
   SafeAreaView,
@@ -34,14 +34,20 @@ import {
   ProfileText,
   Bookmark, AuthError, MnemonicWarning, MnemonicItem, AuthTitle,
 } from './styles';
-import {useNavigation} from "@react-navigation/native";
+import {useNavigation, useRoute} from "@react-navigation/native";
 
-const Me: React.FC = ({user, onLogin, onLogout, onRegister, onMnemonicRecorded, videos, api}) => {
+const Me: React.FC = ({user, onLogin, onLogout, onRegister, onMnemonicRecorded, videos, api, updateUserVideos}) => {
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [isRegistrationForm, setIsRegistrationForm] = React.useState(false);
   const navigation = useNavigation();
+  const route = useRoute();
 
+  useEffect(() => {
+    if (route?.params?.update) {
+      updateUserVideos().then();
+    }
+  }, [route?.params?.update, route?.params?.rand]);
 
   const window = Dimensions.get('window');
 
