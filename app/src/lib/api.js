@@ -75,6 +75,10 @@ export default class Api {
     return this.postJson('feed/friend/get-my-videos');
   }
 
+  getUserVideos(pod) {
+    return this.postJson('feed/friend/get-user-videos', {pod});
+  }
+
   getMyReference() {
     return this.postJson('feed/friend/get-my-reference');
   }

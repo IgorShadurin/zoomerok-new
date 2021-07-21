@@ -31,21 +31,26 @@ const AppRoutes: React.FC = () => {
   async function updateFeedVideos() {
     setFeedVideos(null);
     let videos = (await api.getVideos()).data;
-    // console.log(videos);
 
     videos = videos.map((item, i) => ({
       uri: api.getStaticUrl(item.pod, item.name),
       username: item.username,
       text: item.description,
       tags: '',
-      music: ''
+      music: '',
+      pod: item.pod
     }));
     setFeedVideos(videos);
   }
 
-  async function updateUserVideos(user = 'me') {
+  async function updateUserVideos(pod = '') {
     setCurrentUserVideos(null);
-    let videos = (await api.getMyVideos()).data;
+    let videos;
+    if (pod) {
+      videos = (await api.getUserVideos(pod)).data;
+    } else {
+      videos = (await api.getMyVideos()).data;
+    }
     // console.log('getMyVideos', videos);
 
     videos = videos.map((item, i) => ({
@@ -247,9 +252,15 @@ const AppRoutes: React.FC = () => {
       <Tab.Screen
         name="Me"
         // component={Me}
-        listeners={() => ({
+        listeners={({navigation}) => ({
           tabPress: () => {
             console.log('tabPress');
+            navigation.setParams({
+              username: '',
+              pod: '',
+              update: false,
+              rand: Math.random()
+            });
             updateUserVideos().then();
           },
         })}

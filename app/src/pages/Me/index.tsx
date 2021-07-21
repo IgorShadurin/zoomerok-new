@@ -39,6 +39,7 @@ import {useNavigation, useRoute} from "@react-navigation/native";
 const Me: React.FC = ({user, onLogin, onLogout, onRegister, onMnemonicRecorded, videos, api, updateUserVideos}) => {
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
+  const [displayUser, setDisplayUser] = React.useState('');
   const [isRegistrationForm, setIsRegistrationForm] = React.useState(false);
   const navigation = useNavigation();
   const route = useRoute();
@@ -48,6 +49,15 @@ const Me: React.FC = ({user, onLogin, onLogout, onRegister, onMnemonicRecorded, 
       updateUserVideos().then();
     }
   }, [route?.params?.update, route?.params?.rand]);
+
+  useEffect(() => {
+    if (route?.params?.username && route?.params?.pod) {
+      setDisplayUser(route?.params?.username);
+      updateUserVideos(route?.params?.pod).then();
+    } else {
+      setDisplayUser('');
+    }
+  }, [route?.params?.username, route?.params?.pod, route?.params?.rand]);
 
   const window = Dimensions.get('window');
 
@@ -186,9 +196,9 @@ const Me: React.FC = ({user, onLogin, onLogout, onRegister, onMnemonicRecorded, 
           {(user.username && !user.mnemonic) && <Content>
             {/*<Avatar source={avatar}/>*/}
 
-            <Username>@{user.username}</Username>
+            <Username>@{displayUser ? displayUser : user.username}</Username>
 
-            <Button title="Share profile" onPress={async () => {
+            {!displayUser && <Button title="Share profile" onPress={async () => {
               try {
                 const reference = (await api.getMyReference()).data;
                 console.log(reference);
@@ -215,7 +225,7 @@ const Me: React.FC = ({user, onLogin, onLogout, onRegister, onMnemonicRecorded, 
                 console.log(e);
               }
             }
-            }/>
+            }/>}
 
             <TouchableOpacity onPress={() => {
               console.log('add friend clicked');

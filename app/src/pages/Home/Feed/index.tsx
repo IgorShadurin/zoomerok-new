@@ -19,6 +19,7 @@ import {
   BoxAction,
   TextAction, Description,
 } from './styles';
+import {useNavigation} from "@react-navigation/native";
 
 interface Item {
   id: number;
@@ -39,6 +40,7 @@ interface Props {
 const Feed: React.FC<Props> = ({play, item, isHidden, addRef}) => {
   const [isPlay, setIsPlay] = useState(play);
   const spinValue = new Animated.Value(0);
+  const navigation = useNavigation();
 
   Animated.loop(
     Animated.timing(spinValue, {
@@ -90,8 +92,16 @@ const Feed: React.FC<Props> = ({play, item, isHidden, addRef}) => {
           }}
         />}
       </Container>
+
       <Details>
-        <User>@{item.username}</User>
+        <TouchableWithoutFeedback onPress={async () => {
+          console.log('username clicked', item);
+          navigation.navigate('Me', {username: item.username, pod: item.pod, update: false, rand: Math.random()})
+        }
+        }>
+          <User>@{item.username}</User>
+        </TouchableWithoutFeedback>
+
         <Description>{item.text}</Description>
         {/*<Tags>{item.tags}</Tags>*/}
         {/*<MusicBox>*/}

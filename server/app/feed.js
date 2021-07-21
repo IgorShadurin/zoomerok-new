@@ -165,6 +165,50 @@ module.exports = function (app) {
         }
     });
 
+    // todo test this method
+    app.post('/feed/friend/get-user-videos', async (req, res) => {
+        const {username, password, pod} = req.body;
+
+        const maxItemsFromUser = 100;
+        if (username && password && pod) {
+            await fairOS.userLogin(username, password);
+            const list = await fairOS.podLs();
+            const currentPod = list?.shared_pod_name.find(item => item.startsWith(friendNamePrefix));
+            let result = [];
+            if (!currentPod) {
+                errorResult(res, 'Pod not found');
+                return;
+            }
+
+            await fairOS.podOpen(currentPod, password);
+            let files = await fairOS.dirLs(currentPod);
+            const entries = (files.entries ? files.entries.filter(item => item.name.endsWith('.mp4')).sort().reverse() : []).slice(0, maxItemsFromUser);
+            const nameDescription = {};
+            for (let item of entries) {
+                let info = await fairOS.fileDownload(currentPod, `${item.name}.json`);
+                // todo check is json for cases whe user uploaded video manually
+                if (info) {
+                    info = JSON.parse(info);
+                    nameDescription[item.name] = info;
+                } else {
+                    nameDescription[item.name] = {};
+                }
+            }
+
+            entries.forEach(item => result.push({
+                pod: currentPod,
+                name: item.name,
+                previewName: `${item.name}.jpg`,
+                ...nameDescription[item.name]
+                // address
+            }));
+
+            okResult(res, result);
+        } else {
+            errorResult(res, 'Some params missed');
+        }
+    });
+
     app.post('/feed/friend/get-my-videos', async (req, res) => {
         const {username, password} = req.body;
 
