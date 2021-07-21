@@ -69,7 +69,7 @@ const Record: React.FC = ({api}) => {
               textAlign='center'
               maxLength={100}
               editable={true}
-              style={{fontSize: 16}}
+              style={{fontSize: 16, borderWidth: 1, padding: 8,}}
               onChangeText={setDescription}
               value={description}
               placeholder="Video description"
