@@ -73,7 +73,7 @@ services:
     image: sdancer/zoomerok-fds-server:latest
     restart: unless-stopped
     ports:
-      - '9090:9090'
+      - '8080:8080'
     volumes:
       - /home/ubuntu/zoomerok-docker-data:/zoo-data
     command: start
