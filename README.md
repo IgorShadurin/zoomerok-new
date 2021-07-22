@@ -43,6 +43,8 @@ You could setup all software stack with Docker. This is fastest way. Let's start
 
 ###  Install Docker
 
+Tested on Ubuntu 18.04.1 LTS and Ubuntu 20.04.2.
+
 `curl -sSL https://get.docker.com | sh`
 
 `sudo usermod -aG docker ${USER}`
@@ -69,7 +71,7 @@ data (video, photo) from FairOS that accessible from mobile devices.
 
 `cd zoo`
 
-`wget Uhttps://raw.githubusercontent.com/IgorShadurin/zoomerok-new/master/docker-compose.yml`
+`wget https://raw.githubusercontent.com/IgorShadurin/zoomerok-new/master/docker-compose.yml`
 
 Fix your local paths for bee, fairos, zoo. For example this path from your local
 machine `/home/ubuntu/zoomerok-docker-data`. Change it to correct one.
@@ -84,7 +86,7 @@ Restart in detached mode.
 
 `docker-compose up -d`
 
-Setup your server software to host static data, zoo server scripts.
+TODO: Setup your server software to host static data and redirect 8080 port from your machine to https.
 
 ### Disclaimer
 

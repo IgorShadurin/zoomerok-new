@@ -95,6 +95,8 @@ const AppRoutes: React.FC = () => {
             setUser(data => ({...data, isLogin: false, username, password}));
             await updateFeedVideos();
             await updateUserVideos();
+          } else {
+            setUser(data => ({...data, isLogin: false, message: null}));
           }
         } catch (e) {
           // api.setCredentials('', '');
