@@ -88,6 +88,10 @@ Restart in detached mode.
 
 TODO: Setup your server software to host static data and redirect 8080 port from your machine to https.
 
+### Urls
+
+Docker repo: https://hub.docker.com/r/sdancer/zoomerok-fds-server
+
 ### Disclaimer
 
 * There is an active development phase in the SWARM and Ethereum testnets. Therefore, the creators of the project do not
