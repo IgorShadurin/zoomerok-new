@@ -41,6 +41,24 @@ application. This will keep the network truly decentralized.
 
 You could setup all software stack with Docker. This is fastest way. Let's start.
 
+###  Install Docker
+
+`curl -sSL https://get.docker.com | sh`
+
+`sudo usermod -aG docker ${USER}`
+
+`sudo apt-get install libffi-dev libssl-dev`
+
+`sudo apt install python3-dev`
+
+`sudo apt-get install -y python3 python3-pip`
+
+`sudo pip3 install docker-compose`
+
+`sudo systemctl enable docker`
+
+### Install server software
+
 `mkdir zoo bee-docker-data dfs-docker-data zoomerok-docker-data`
 
 Inside `zoo` will be stored `docker-compose.yml`. In `bee-docker-data` data for bee node.
