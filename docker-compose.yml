@@ -35,7 +35,7 @@ services:
       - BEE_PAYMENT_TOLERANCE
       - BEE_POSTAGE_STAMP_ADDRESS
       - BEE_RESOLVER_OPTIONS
-      - BEE_STANDALONE
+      - BEE_STANDALONE=true
       - BEE_SWAP_ENABLE
       - BEE_SWAP_ENDPOINT=https://goerli.infura.io/v3/d6b35821fc8642029a0ecf34b116ab30
       - BEE_SWAP_FACTORY_ADDRESS
