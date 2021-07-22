@@ -1,5 +1,9 @@
 const FairOS = require('../lib/FairOSNode');
 const fs = require('fs');
+const envPathFirst = `${process.env.PWD}/../.env`;
+const envPathSecond = `${process.env.PWD}/.env`;
+const envPath = fs.existsSync(envPathFirst) ? envPathFirst : envPathSecond;
+require('dotenv').config({path: envPath});
 
 /**
  *
@@ -38,7 +42,7 @@ module.exports.fairOS = fairOSInstance ? fairOSInstance : (
     // todo insert var from env
     // fairOSTestInstance = new FairOS('http://localhost:9099/v1/'),
     // fairOSTestInstance = new FairOS('http://raspberrypi.local:9099/v1/'),
-    fairOSTestInstance = new FairOS('http://raspberrypi.local:9099/v0/'),
+    fairOSTestInstance = new FairOS(process.env.APP_FAIR_API_URL),
         fairOSTestInstance
 );
 

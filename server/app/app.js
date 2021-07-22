@@ -8,6 +8,8 @@ const envPathSecond = `${process.env.PWD}/.env`;
 const envPath = fs.existsSync(envPathFirst) ? envPathFirst : envPathSecond;
 require('dotenv').config({path: envPath});
 
+console.log(`Fair API URL: "${process.env.APP_FAIR_API_URL}"`);
+
 function validateEnv() {
     const staticPath = process.env.APP_STATIC_VIDEO_PATH;
     if (!(staticPath && fs.existsSync(staticPath))) {
