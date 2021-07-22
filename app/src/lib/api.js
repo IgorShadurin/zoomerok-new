@@ -84,7 +84,7 @@ export default class Api {
   }
 
   getStaticUrl(pod, name) {
-    return `${this.staticUrl}/${pod}/${name}`;
+    return `${this.staticUrl}/${pod}/${name}`.toLowerCase();
   }
 
   uploadVideo(uri, description) {

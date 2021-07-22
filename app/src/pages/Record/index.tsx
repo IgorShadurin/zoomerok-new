@@ -82,11 +82,16 @@ const Record: React.FC = ({api}) => {
                   disabled={isUploadDisabled}
                   onPress={async () => {
                     if (video) {
-                      setUploading(true);
-                      const data = await api.uploadVideo(video.uri, description);
-                      setUploading(false);
-                      console.log('uploaded', data);
-                      navigation.navigate("Me", {update: true, rand: Math.random()});
+                      try {
+                        setUploading(true);
+                        const data = await api.uploadVideo(video.uri, description);
+                        setUploading(false);
+                        console.log('uploaded', data);
+                        navigation.navigate("Me", {update: true, rand: Math.random()});
+                      } catch (e) {
+                        console.log(e);
+                        setUploading(false);
+                      }
                     }
                   }}/>
               </View>
