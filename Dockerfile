@@ -8,7 +8,7 @@ RUN yarn
 
 COPY ./server .
 
-RUN rm .env
+RUN rm -f .env
 
 RUN echo "APP_STATIC_VIDEO_PATH=/zoo-data" >> .env
 RUN echo "APP_FAIR_API_URL=http://fairos:9090/v0/" >> .env
