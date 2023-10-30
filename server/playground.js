@@ -14,7 +14,7 @@ async function run() {
 
     const testUser = {
         username: 'admin',
-        password: 'admin',
+        password: 'admin', // change before using
         // https://github.com/bitcoin/bips/blob/master/bip-0039/english.txt
         // https://iancoleman.io/bip39/#english
         mnemonic: 'series height alley dignity salad huge derive poem regret mercy inhale mesh'
