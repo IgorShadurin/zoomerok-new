@@ -78,5 +78,6 @@ services:
       - /home/ubuntu/zoomerok-docker-data:/zoo-data
     command: start
 
+
     depends_on:
       - fairos
