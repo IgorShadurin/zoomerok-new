@@ -1,6 +1,6 @@
 # Zoomerok - fair video platform
 
-Are you Zoomer? OK, it doesn't matter. Everyone deserves fair platform for their content.
+Everyone deserves fair platform for their content.
 
 The platform was created by content creators who have been interfered with by large corporations and have been removed
 from major social networks. After the removal, the authors lost all their many years of work: photos, videos, articles
@@ -12,7 +12,7 @@ for many years.
 Right now, the world is changing and fair finance ([Ethereum](https://ethereum.org/en/)
 , [Bitcoin](https://bitcoin.org/en/)), an fair data registry (Ethereum, [xDai](https://www.xdaichain.com/)) and a fair
 data storage ([SWARM](https://github.com/ethersphere/bee), [FairOS](https://github.com/fairDataSociety/fairOS-dfs)) are
-becoming available to all people in the world.
+becoming available to all people in the world. However, the project can work with other data sources such as IPFS.
 
 Based on these technologies, a mobile application was created with one of the most trending types of content - short
 videos. Anyone in the world can become a content producer on our test* platform.
