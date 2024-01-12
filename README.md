@@ -97,3 +97,5 @@ Docker repo: https://hub.docker.com/r/sdancer/zoomerok-fds-server
 * There is an active development phase in the SWARM and Ethereum testnets. Therefore, the creators of the project do not
   give any guarantee for the preservation of data in these networks and Zoomerok application. Use the project for
   informational purposes only.
+
+Donation address: 0xfA71047238846e7600C20FE701a5c42c9a3e53F8
